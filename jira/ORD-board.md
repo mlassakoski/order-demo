@@ -208,12 +208,15 @@ A customer sends a customer identifier and one or more order lines and gets back
 `git switch -c feature/ORD-12-place-an-order` → `/clear` → `/implement ORD-12`. Seams: as in `CODING_STANDARDS.md` (aggregate, use case with fake port, web slice, one IT).
 
 **Technical tasks**
-- [ ] **T1 Domain: the Order aggregate can be placed.** Value objects `OrderId` (with `newId()`), `CustomerId`, `ProductId`, `OrderLine`, enum `OrderStatus` (Pending, Paid, Shipped, Cancelled); `Order.place(customerId, lines)` and `Order.rehydrate(...)`. Seam: aggregate. Done when: a placed order is Pending, has an id, keeps lines in order as an unmodifiable copy; two placements get different ids.
-- [ ] **T2 Application: place-order use case.** `PlaceOrderUseCase` + `PlaceOrderCommand`, output port `OrderRepositoryPort` (`save`, `findById`), `PlaceOrderService`. Seam: use case with an in-memory fake port. Done when: placing saves the order and returns it.
-- [ ] **T3 Persistence: in-memory adapter.** `OrderInMemoryAdapter` implements the port and stores/returns copies via `rehydrate`. Seam: the port. Done when: save then find returns an equal order that is a different instance.
-- [ ] **T4 Web: `POST /orders`.** `OrderController`, `PlaceOrderRequest`, `OrderLineRequest`, `OrderResponse`. Seam: `@WebMvcTest` with the use case mocked. Done when: 201, `Location: /orders/{id}`, body with id, customer, lines, state Pending.
-- [ ] **T5 Acceptance: `PlaceOrderIT`.** Seam: running application (`@SpringBootTest` + MockMvc). Done when: the happy path passes end to end.
+- [x] **T1 Domain: the Order aggregate can be placed.** Value objects `OrderId` (with `newId()`), `CustomerId`, `ProductId`, `OrderLine`, enum `OrderStatus` (Pending, Paid, Shipped, Cancelled); `Order.place(customerId, lines)` and `Order.rehydrate(...)`. Seam: aggregate. Done when: a placed order is Pending, has an id, keeps lines in order as an unmodifiable copy; two placements get different ids.
+- [x] **T2 Application: place-order use case.** `PlaceOrderUseCase` + `PlaceOrderCommand`, output port `OrderRepositoryPort` (`save`, `findById`), `PlaceOrderService`. Seam: use case with an in-memory fake port. Done when: placing saves the order and returns it.
+- [x] **T3 Persistence: in-memory adapter.** `OrderInMemoryAdapter` implements the port and stores/returns copies via `rehydrate`. Seam: the port. Done when: save then find returns an equal order that is a different instance.
+- [x] **T4 Web: `POST /orders`.** `OrderController`, `PlaceOrderRequest`, `OrderLineRequest`, `OrderResponse`. Seam: `@WebMvcTest` with the use case mocked. Done when: 201, `Location: /orders/{id}`, body with id, customer, lines, state Pending.
+- [x] **T5 Acceptance: `PlaceOrderIT`.** Seam: running application (`@SpringBootTest` + MockMvc). Done when: the happy path passes end to end.
 - [ ] **T6 Close.** `./mvnw verify` green (Stop hook), `/code-review main` Standards + Spec clean, commit `feat(ORD-12): place an order`, status `In Review`, PR with the first-pass box ticked by the reviewer.
+
+**Comments**
+- 2026-10-24 Claude: T1–T5 built test-first on `feature/ORD-12-place-an-order` (8a4177d), merged into `feature/ORD-10-place-and-view-orders`; `./mvnw verify` green. T5 `PlaceOrderIT` was green on first run (layers already wired by T1–T4). It checks storage through `OrderRepositoryPort` since `GET` arrives in ORD-14. JSON contract: `{id, customerId, lines:[{productId, quantity}], status:"PENDING"}`, `Location: /orders/{id}` (relative). Value objects only reject null for now; blank/quantity/empty rules come in ORD-13. T6 runs at epic close.
 
 ### ORD-13 · Story: Refuse invalid orders
 
