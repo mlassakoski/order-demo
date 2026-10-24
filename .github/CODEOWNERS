@@ -1,14 +1,14 @@
 # Replace the team handles with your GitHub teams.
 # Default: any member of the service team can approve.
-*                                          @your-org/order-team
+*                                          @mlassakoski
 
 # Guardrails and agent configuration: a tech lead must approve.
-/src/test/java/**/architecture/            @your-org/tech-leads
-/src/test/resources/archunit.properties    @your-org/tech-leads
-/.claude/                                  @your-org/tech-leads
-/.mcp.json                                 @your-org/tech-leads
-/.github/                                  @your-org/tech-leads
-/AGENTS.md                                 @your-org/tech-leads
-/CLAUDE.md                                 @your-org/tech-leads
-/CODING_STANDARDS.md                       @your-org/tech-leads
-/pom.xml                                   @your-org/tech-leads
+/src/test/java/**/architecture/            @mlassakoski
+/src/test/resources/archunit.properties    @mlassakoski
+/.claude/                                  @mlassakoski
+/.mcp.json                                 @mlassakoski
+/.github/                                  @mlassakoski
+/AGENTS.md                                 @mlassakoski
+/CLAUDE.md                                 @mlassakoski
+/CODING_STANDARDS.md                       @mlassakoski
+/pom.xml                                   @mlassakoski
