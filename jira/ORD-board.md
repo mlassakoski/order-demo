@@ -166,7 +166,7 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 
 ## ORD-10 · Epic: Place and view orders
 
-Status: Ready for Agent · Owner: Mauricio · Spec: `docs/specs/ORD-10-place-and-view-orders.md`
+Status: In Review · Owner: Mauricio · Spec: `docs/specs/ORD-10-place-and-view-orders.md`
 
 Customers can place an order with one or more order lines and look it up later. First feature: sets the patterns (aggregate, ports, error model, tests) for everything after it.
 
@@ -186,7 +186,7 @@ Refinement session with the agent: `/grill-with-docs` → `/to-spec` → `/to-ti
 
 ### ORD-12 · Story: Place an order
 
-- **Status:** Ready for Agent
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent · **Points:** 5 · **Sprint:** 1
 - **Blocked by:** ORD-3, ORD-4
@@ -198,11 +198,11 @@ As a customer, I want to place an order with one or more products, so that I can
 A customer sends a customer identifier and one or more order lines and gets back a new Pending order with a service-generated identifier and its location. Cuts through every layer: the Order aggregate's `place`, the place-order use case, in-memory storage, `POST /orders`.
 
 **Acceptance criteria**
-- [ ] Given a customer and one order line, when the order is placed, then the response is `201` with `Location: /orders/{id}` and the order in state Pending
-- [ ] Given several order lines, when the order is placed, then all lines are kept in order
-- [ ] Two placed orders never share an identifier; the client never sends one
-- [ ] The placed order is stored and can be found again through the storage port
-- [ ] Acceptance test (`*IT`) for the happy path through the running application
+- [x] Given a customer and one order line, when the order is placed, then the response is `201` with `Location: /orders/{id}` and the order in state Pending
+- [x] Given several order lines, when the order is placed, then all lines are kept in order
+- [x] Two placed orders never share an identifier; the client never sends one
+- [x] The placed order is stored and can be found again through the storage port
+- [x] Acceptance test (`*IT`) for the happy path through the running application
 
 **Execution**
 `git switch -c feature/ORD-12-place-an-order` → `/clear` → `/implement ORD-12`. Seams: as in `CODING_STANDARDS.md` (aggregate, use case with fake port, web slice, one IT).
@@ -213,14 +213,15 @@ A customer sends a customer identifier and one or more order lines and gets back
 - [x] **T3 Persistence: in-memory adapter.** `OrderInMemoryAdapter` implements the port and stores/returns copies via `rehydrate`. Seam: the port. Done when: save then find returns an equal order that is a different instance.
 - [x] **T4 Web: `POST /orders`.** `OrderController`, `PlaceOrderRequest`, `OrderLineRequest`, `OrderResponse`. Seam: `@WebMvcTest` with the use case mocked. Done when: 201, `Location: /orders/{id}`, body with id, customer, lines, state Pending.
 - [x] **T5 Acceptance: `PlaceOrderIT`.** Seam: running application (`@SpringBootTest` + MockMvc). Done when: the happy path passes end to end.
-- [ ] **T6 Close.** `./mvnw verify` green (Stop hook), `/code-review main` Standards + Spec clean, commit `feat(ORD-12): place an order`, status `In Review`, PR with the first-pass box ticked by the reviewer.
+- [x] **T6 Close.** `./mvnw verify` green (Stop hook), `/code-review main` Standards + Spec clean, commit `feat(ORD-12): place an order`, status `In Review`, PR with the first-pass box ticked by the reviewer.
 
 **Comments**
 - 2026-10-24 Claude: T1–T5 built test-first on `feature/ORD-12-place-an-order` (8a4177d), merged into `feature/ORD-10-place-and-view-orders`; `./mvnw verify` green. T5 `PlaceOrderIT` was green on first run (layers already wired by T1–T4). It checks storage through `OrderRepositoryPort` since `GET` arrives in ORD-14. JSON contract: `{id, customerId, lines:[{productId, quantity}], status:"PENDING"}`, `Location: /orders/{id}` (relative). Value objects only reject null for now; blank/quantity/empty rules come in ORD-13. T6 runs at epic close.
+- 2026-10-24 Claude: epic close. Code review since c5fa7c9 (Standards + Spec) and `security-reviewer` (first FAIL: unbounded input, raw id echoed) addressed in 89fe242 `fix(ORD-10): address review findings` with Mauricio's decisions: ≤100 lines, ids ≤64 chars, quantity 1–1000, order id is a UUID (malformed → 404 without echo), fixed English messages, `rehydrate` keeps invariants. Re-review: PASS. Open, Low: Spring's default 404 for unmapped paths (`/orders/a/b`) echoes the path; in-memory store has no cap (placeholder adapter). `./mvnw verify` green on `feature/ORD-10-place-and-view-orders`. No PR: no remote yet (ORD-5), nothing pushed.
 
 ### ORD-13 · Story: Refuse invalid orders
 
-- **Status:** Ready for Agent
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent · **Points:** 3 · **Sprint:** 1
 - **Blocked by:** ORD-12
@@ -232,11 +233,11 @@ As a customer, I want invalid orders to be refused with a clear explanation, so 
 Invalid orders are refused with a `400` problem detail and nothing is stored. Introduces the domain validation error type and the single exception handler.
 
 **Acceptance criteria**
-- [ ] No order lines → `400` problem detail, nothing stored
-- [ ] An order line with quantity 0 or negative → `400` problem detail, nothing stored
-- [ ] Missing or blank customer identifier → `400` problem detail
-- [ ] Missing or blank product identifier → `400` problem detail
-- [ ] The same rules hold when the domain is used directly (aggregate tests), not only over HTTP
+- [x] No order lines → `400` problem detail, nothing stored
+- [x] An order line with quantity 0 or negative → `400` problem detail, nothing stored
+- [x] Missing or blank customer identifier → `400` problem detail
+- [x] Missing or blank product identifier → `400` problem detail
+- [x] The same rules hold when the domain is used directly (aggregate tests), not only over HTTP
 
 **Execution**
 `git switch -c feature/ORD-13-refuse-invalid-orders` → `/clear` → `/implement ORD-13`.
@@ -246,14 +247,15 @@ Invalid orders are refused with a `400` problem detail and nothing is stored. In
 - [x] **T2 Web: request validation.** Bean Validation on `PlaceOrderRequest` / `OrderLineRequest` (`@NotBlank`, `@NotEmpty`, `@Valid`, `@NotNull`, `@Min(1)`). Seam: `@WebMvcTest`. Done when: each invalid body returns 400 and the use case is never called.
 - [x] **T3 Web: error model.** `GlobalExceptionHandler` (`@RestControllerAdvice` extending `ResponseEntityExceptionHandler`) maps `DomainValidationException` → 400 `ProblemDetail` with a readable `detail`. Only the 400 mapping now: 404 comes with ORD-14, 409 with ORD-23. Seam: `@WebMvcTest` with the use case throwing. Done when: a domain validation error returns a 400 problem detail.
 - [x] **T4 Acceptance: `RefuseInvalidOrderIT`.** Done when: an order with no lines returns 400 problem detail and the storage port holds no order.
-- [ ] **T5 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-13): refuse invalid orders`, PR.
+- [x] **T5 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-13): refuse invalid orders`, PR.
 
 **Comments**
 - 2026-10-24 Claude: T1–T4 built test-first on `feature/ORD-13-refuse-invalid-orders` (ffbfd72, merged with ORD-14 in d5c1b93); `./mvnw verify` green. `RefuseInvalidOrderIT` green on first run; checks "nothing stored" with a spy on `OrderRepositoryPort.save`. Choices: `OrderLineRequest.quantity` is `Integer` so `@NotNull` catches a missing quantity; blank/null ids throw `InvalidIdentifierException`; empty-lines rule sits in the `Order` constructor so `rehydrate` enforces it too; bean-validation 400 `detail` lists failing fields sorted by name (message wording follows the JVM locale, tests assert field names). T5 runs at epic close.
+- 2026-10-24 Claude: epic close. Code review since c5fa7c9 (Standards + Spec) and `security-reviewer` (first FAIL: unbounded input, raw id echoed) addressed in 89fe242 `fix(ORD-10): address review findings` with Mauricio's decisions: ≤100 lines, ids ≤64 chars, quantity 1–1000, order id is a UUID (malformed → 404 without echo), fixed English messages, `rehydrate` keeps invariants. Re-review: PASS. Open, Low: Spring's default 404 for unmapped paths (`/orders/a/b`) echoes the path; in-memory store has no cap (placeholder adapter). `./mvnw verify` green on `feature/ORD-10-place-and-view-orders`. No PR: no remote yet (ORD-5), nothing pushed.
 
 ### ORD-14 · Story: View an order
 
-- **Status:** Ready for Agent
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent · **Points:** 2 · **Sprint:** 1
 - **Blocked by:** ORD-12
@@ -265,9 +267,9 @@ As a customer, I want to see an order by its identifier, so that I can check its
 `GET /orders/{id}` returns the order; an unknown identifier gets a `404` problem detail. Adds the get-order use case and the not-found error type.
 
 **Acceptance criteria**
-- [ ] Given a placed order, when it is fetched, then the response is `200` with id, customer, order lines and state
-- [ ] Given an unknown identifier, when it is fetched, then the response is `404` problem detail
-- [ ] Reading returns a separate instance from the stored one (storage behaves like a database)
+- [x] Given a placed order, when it is fetched, then the response is `200` with id, customer, order lines and state
+- [x] Given an unknown identifier, when it is fetched, then the response is `404` problem detail
+- [x] Reading returns a separate instance from the stored one (storage behaves like a database)
 
 **Execution**
 `git switch -c feature/ORD-14-view-an-order` → `/clear` → `/implement ORD-14`. Can run in parallel with ORD-13 (separate worktree).
@@ -276,10 +278,11 @@ As a customer, I want to see an order by its identifier, so that I can check its
 - [x] **T1 Application: get-order use case.** `GetOrderUseCase` + `GetOrderQuery`, `GetOrderService`; abstract `NotFoundException` and `OrderNotFoundException` (message includes the id). Seam: use case with in-memory fake port. Done when: a stored order is returned; an unknown id throws `OrderNotFoundException`.
 - [x] **T2 Web: `GET /orders/{id}`.** New controller method returning `OrderResponse`; `GlobalExceptionHandler` maps `NotFoundException` → 404 `ProblemDetail`. Seam: `@WebMvcTest`. Done when: 200 with body for a known id, 404 problem detail for an unknown one.
 - [x] **T3 Acceptance: `ViewOrderIT`.** Done when: an order placed with `POST /orders` is returned by `GET` on its `Location`.
-- [ ] **T4 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-14): view an order`, PR.
+- [x] **T4 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-14): view an order`, PR.
 
 **Comments**
 - 2026-10-24 Claude: T1–T3 built test-first on `feature/ORD-14-view-an-order` (51f6c7d), merged into `feature/ORD-10-place-and-view-orders`; `./mvnw verify` green. `NotFoundException` / `OrderNotFoundException` live in `application.port.in` (part of the use case contract; the web adapter may only see input ports and domain). `ViewOrderIT` green on first run. "Separate instance" criterion covered by `OrderInMemoryAdapterTest`. Created `GlobalExceptionHandler` with the 404 mapping; ORD-13 merges its 400 mapping in. T4 runs at epic close.
+- 2026-10-24 Claude: epic close. Code review since c5fa7c9 (Standards + Spec) and `security-reviewer` (first FAIL: unbounded input, raw id echoed) addressed in 89fe242 `fix(ORD-10): address review findings` with Mauricio's decisions: ≤100 lines, ids ≤64 chars, quantity 1–1000, order id is a UUID (malformed → 404 without echo), fixed English messages, `rehydrate` keeps invariants. Re-review: PASS. Open, Low: Spring's default 404 for unmapped paths (`/orders/a/b`) echoes the path; in-memory store has no cap (placeholder adapter). `./mvnw verify` green on `feature/ORD-10-place-and-view-orders`. No PR: no remote yet (ORD-5), nothing pushed.
 
 Note: if ORD-13 and ORD-14 run in parallel, both touch `GlobalExceptionHandler`; the second PR rebases and keeps both mappings.
 
