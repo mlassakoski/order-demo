@@ -15,6 +15,9 @@ public final class Order {
         this.id = Objects.requireNonNull(id, "order id");
         this.customerId = Objects.requireNonNull(customerId, "customer id");
         this.lines = List.copyOf(Objects.requireNonNull(lines, "order lines"));
+        if (this.lines.isEmpty()) {
+            throw new EmptyOrderException();
+        }
         this.status = Objects.requireNonNull(status, "order status");
     }
 

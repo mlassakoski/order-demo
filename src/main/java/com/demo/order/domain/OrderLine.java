@@ -7,5 +7,8 @@ public record OrderLine(ProductId productId, int quantity) {
 
     public OrderLine {
         Objects.requireNonNull(productId, "product id");
+        if (quantity < 1) {
+            throw new InvalidQuantityException();
+        }
     }
 }
