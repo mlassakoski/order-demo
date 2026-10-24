@@ -1,5 +1,6 @@
 package com.demo.order.adapter.in.web;
 
+import com.demo.order.application.port.in.NotFoundException;
 import com.demo.order.domain.DomainValidationException;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
- * The single place where errors become HTTP responses (RFC 9457 problem details).
+ * Maps exceptions to RFC 9457 problem details. The only place where errors become HTTP responses.
  *
  * <p>Spring's own MVC errors (malformed body, bean validation, ...) are handled by the base class.
  */
@@ -24,8 +25,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DomainValidationException.class)
-    ProblemDetail handleDomainValidation(DomainValidationException exception) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+    ResponseEntity<ProblemDetail> handleDomainValidation(DomainValidationException exception) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+        return ResponseEntity.of(problem).build();
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    ResponseEntity<ProblemDetail> handleNotFound(NotFoundException exception) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        return ResponseEntity.of(problem).build();
     }
 
     @Override

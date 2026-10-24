@@ -270,10 +270,13 @@ As a customer, I want to see an order by its identifier, so that I can check its
 `git switch -c feature/ORD-14-view-an-order` → `/clear` → `/implement ORD-14`. Can run in parallel with ORD-13 (separate worktree).
 
 **Technical tasks**
-- [ ] **T1 Application: get-order use case.** `GetOrderUseCase` + `GetOrderQuery`, `GetOrderService`; abstract `NotFoundException` and `OrderNotFoundException` (message includes the id). Seam: use case with in-memory fake port. Done when: a stored order is returned; an unknown id throws `OrderNotFoundException`.
-- [ ] **T2 Web: `GET /orders/{id}`.** New controller method returning `OrderResponse`; `GlobalExceptionHandler` maps `NotFoundException` → 404 `ProblemDetail`. Seam: `@WebMvcTest`. Done when: 200 with body for a known id, 404 problem detail for an unknown one.
-- [ ] **T3 Acceptance: `ViewOrderIT`.** Done when: an order placed with `POST /orders` is returned by `GET` on its `Location`.
+- [x] **T1 Application: get-order use case.** `GetOrderUseCase` + `GetOrderQuery`, `GetOrderService`; abstract `NotFoundException` and `OrderNotFoundException` (message includes the id). Seam: use case with in-memory fake port. Done when: a stored order is returned; an unknown id throws `OrderNotFoundException`.
+- [x] **T2 Web: `GET /orders/{id}`.** New controller method returning `OrderResponse`; `GlobalExceptionHandler` maps `NotFoundException` → 404 `ProblemDetail`. Seam: `@WebMvcTest`. Done when: 200 with body for a known id, 404 problem detail for an unknown one.
+- [x] **T3 Acceptance: `ViewOrderIT`.** Done when: an order placed with `POST /orders` is returned by `GET` on its `Location`.
 - [ ] **T4 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-14): view an order`, PR.
+
+**Comments**
+- 2026-10-24 Claude: T1–T3 built test-first on `feature/ORD-14-view-an-order` (51f6c7d), merged into `feature/ORD-10-place-and-view-orders`; `./mvnw verify` green. `NotFoundException` / `OrderNotFoundException` live in `application.port.in` (part of the use case contract; the web adapter may only see input ports and domain). `ViewOrderIT` green on first run. "Separate instance" criterion covered by `OrderInMemoryAdapterTest`. Created `GlobalExceptionHandler` with the 404 mapping; ORD-13 merges its 400 mapping in. T4 runs at epic close.
 
 Note: if ORD-13 and ORD-14 run in parallel, both touch `GlobalExceptionHandler`; the second PR rebases and keeps both mappings.
 
