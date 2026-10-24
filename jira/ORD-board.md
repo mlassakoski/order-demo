@@ -89,10 +89,13 @@ Install the harness on the dev machine and prove the skeleton builds. If the bui
 Install the `mattpocock-skills` plugin the way Matt recommends for Claude Code and run his one-time repo setup, pointing the tracker at this board.
 
 **Acceptance criteria**
-- [ ] `scripts/install-matt-pocock-skills.sh` ran (plugins `mattpocock-skills`, `jdtls-lsp`; `brew install jdtls`); `/` in Claude Code lists `grill-with-docs`, `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, `retro`, `jira-board`
-- [ ] `context7` MCP server approved; `/mcp` shows it connected
-- [ ] `/setup-matt-pocock-skills` done: tracker **Other** (paragraph from "How agents use this board"), default triage labels, single-context docs
-- [ ] `CLAUDE.md` has the `## Agent skills` block and `docs/agents/*.md` exist; committed as `chore(ORD-4): configure agent skills`
+- [x] `scripts/install-matt-pocock-skills.sh` ran (plugins `mattpocock-skills`, `jdtls-lsp`; `brew install jdtls`); `/` in Claude Code lists `grill-with-docs`, `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, `retro`, `jira-board`
+- [x] `context7` MCP server approved; `/mcp` shows it connected
+- [x] `/setup-matt-pocock-skills` done: tracker **Other** (paragraph from "How agents use this board"), default triage labels, single-context docs
+- [x] `CLAUDE.md` has the `## Agent skills` block and `docs/agents/*.md` exist; committed as `chore(ORD-4): configure agent skills`
+
+**Comments**
+- 2026-10-24 Claude: plugins `mattpocock-skills` 1.3.1 and `jdtls-lsp` were already installed; `brew install jdtls` added jdtls 1.63.0. All listed skills ship in the plugin (`grill-with-docs`, `to-spec`, `to-tickets`, `retro` and `setup-matt-pocock-skills` are user-invoked only, so agents don't see them in their own skill list). `context7` tools are live in the session. `/setup-matt-pocock-skills` can't be run by the agent (`disable-model-invocation`), so its output was written by hand from the skill's templates with the answers above: `docs/agents/issue-tracker.md` (from the board paragraph, plus blocking/close rules), `triage-labels.md` (defaults), `domain.md` (single-context), `## Agent skills` block in `CLAUDE.md`. `needs-info` and `wontfix` have no board status yet. Branch `feature/ORD-4-configure-agent-skills`.
 
 ### ORD-5 · Task: Create the GitHub repository and protect main
 
