@@ -2,7 +2,6 @@ package com.demo.order.adapter.in.web;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -26,9 +25,13 @@ import com.demo.order.domain.OrderId;
 import com.demo.order.domain.OrderLine;
 import com.demo.order.domain.OrderStatus;
 import com.demo.order.domain.ProductId;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -38,6 +41,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(OrderController.class)
 class OrderControllerTest {
+
+    private static final String ORDER_ID = "8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01";
+    private static final String UNKNOWN_ORDER_ID = "00000000-0000-4000-8000-000000000000";
+
+    private static final String VALID_BODY = """
+            {"customerId": "customer-1", "lines": [{"productId": "product-1", "quantity": 1}]}
+            """;
 
     private final MockMvc mockMvc;
 
@@ -56,7 +66,7 @@ class OrderControllerTest {
         var lines = List.of(new OrderLine(new ProductId("product-1"), 2), new OrderLine(new ProductId("product-2"), 1));
         when(placeOrder.place(any()))
                 .thenReturn(Order.rehydrate(
-                        new OrderId("order-1"), new CustomerId("customer-1"), lines, OrderStatus.PENDING));
+                        new OrderId(ORDER_ID), new CustomerId("customer-1"), lines, OrderStatus.PENDING));
 
         mockMvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON).content("""
                         {
@@ -68,8 +78,8 @@ class OrderControllerTest {
                         }
                         """))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/orders/order-1"))
-                .andExpect(jsonPath("$.id").value("order-1"))
+                .andExpect(header().string("Location", "/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"))
+                .andExpect(jsonPath("$.id").value("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"))
                 .andExpect(jsonPath("$.customerId").value("customer-1"))
                 .andExpect(jsonPath("$.lines[0].productId").value("product-1"))
                 .andExpect(jsonPath("$.lines[0].quantity").value(2))
@@ -80,21 +90,55 @@ class OrderControllerTest {
         verify(placeOrder).place(new PlaceOrderCommand(new CustomerId("customer-1"), lines));
     }
 
+    static Stream<Arguments> invalidBodies() {
+        return Stream.of(
+                Arguments.of("""
+                        {"lines": [{"productId": "product-1", "quantity": 1}]}""", "customerId: must not be blank"),
+                Arguments.of("""
+                        {"customerId": "  ", "lines": [{"productId": "product-1", "quantity": 1}]}""", "customerId: must not be blank"),
+                Arguments.of(
+                        "{\"customerId\": \"" + "c".repeat(65)
+                                + "\", \"lines\": [{\"productId\": \"product-1\", \"quantity\": 1}]}",
+                        "customerId: must be at most 64 characters"),
+                Arguments.of("""
+                        {"customerId": "customer-1"}""", "lines: must not be empty"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": []}""", "lines: must not be empty"),
+                Arguments.of(
+                        "{\"customerId\": \"customer-1\", \"lines\": ["
+                                + String.join(
+                                        ",",
+                                        Collections.nCopies(101, "{\"productId\": \"product-1\", \"quantity\": 1}"))
+                                + "]}",
+                        "lines: must have at most 100 order lines"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": [null]}""", "lines[0]: must not be null"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": [{"quantity": 1}]}""", "lines[0].productId: must not be blank"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": [{"productId": " ", "quantity": 1}]}""", "lines[0].productId: must not be blank"),
+                Arguments.of(
+                        "{\"customerId\": \"customer-1\", \"lines\": [{\"productId\": \"" + "p".repeat(65)
+                                + "\", \"quantity\": 1}]}",
+                        "lines[0].productId: must be at most 64 characters"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": [{"productId": "product-1"}]}""", "lines[0].quantity: must not be null"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": [{"productId": "product-1", "quantity": 0}]}""", "lines[0].quantity: must be at least 1"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": [{"productId": "product-1", "quantity": -1}]}""", "lines[0].quantity: must be at least 1"),
+                Arguments.of("""
+                        {"customerId": "customer-1", "lines": [{"productId": "product-1", "quantity": 1001}]}""", "lines[0].quantity: must be at most 1000"));
+    }
+
     @ParameterizedTest
-    @ValueSource(strings = {"""
-                {"lines": [{"productId": "product-1", "quantity": 1}]}""", """
-                {"customerId": "  ", "lines": [{"productId": "product-1", "quantity": 1}]}""", """
-                {"customerId": "customer-1"}""", """
-                {"customerId": "customer-1", "lines": []}""", """
-                {"customerId": "customer-1", "lines": [null]}""", """
-                {"customerId": "customer-1", "lines": [{"quantity": 1}]}""", """
-                {"customerId": "customer-1", "lines": [{"productId": " ", "quantity": 1}]}""", """
-                {"customerId": "customer-1", "lines": [{"productId": "product-1"}]}""", """
-                {"customerId": "customer-1", "lines": [{"productId": "product-1", "quantity": 0}]}""", """
-                {"customerId": "customer-1", "lines": [{"productId": "product-1", "quantity": -1}]}"""})
-    void should_return_400_and_not_place_order_when_request_body_is_invalid(String body) throws Exception {
+    @MethodSource("invalidBodies")
+    void should_return_400_with_a_fixed_english_detail_and_not_place_order_when_request_body_is_invalid(
+            String body, String expectedDetail) throws Exception {
         mockMvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value(expectedDetail));
 
         verifyNoInteractions(placeOrder);
     }
@@ -123,8 +167,8 @@ class OrderControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.detail", startsWith("customerId: ")))
-                .andExpect(jsonPath("$.detail", containsString("; lines[0].quantity: ")))
+                .andExpect(jsonPath("$.detail")
+                        .value("customerId: must not be blank; lines[0].quantity: must be at least 1"))
                 .andExpect(content().string(not(containsString("Exception"))))
                 .andExpect(content().string(not(containsString("com.demo"))));
     }
@@ -140,20 +184,16 @@ class OrderControllerTest {
         verifyNoInteractions(placeOrder);
     }
 
-    private static final String VALID_BODY = """
-            {"customerId": "customer-1", "lines": [{"productId": "product-1", "quantity": 1}]}
-            """;
-
     @Test
     void should_return_200_with_the_order_when_id_is_known() throws Exception {
         var lines = List.of(new OrderLine(new ProductId("product-1"), 2), new OrderLine(new ProductId("product-2"), 1));
-        when(getOrder.get(new GetOrderQuery(new OrderId("order-1"))))
+        when(getOrder.get(new GetOrderQuery(new OrderId(ORDER_ID))))
                 .thenReturn(Order.rehydrate(
-                        new OrderId("order-1"), new CustomerId("customer-1"), lines, OrderStatus.PENDING));
+                        new OrderId(ORDER_ID), new CustomerId("customer-1"), lines, OrderStatus.PENDING));
 
-        mockMvc.perform(get("/orders/order-1"))
+        mockMvc.perform(get("/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("order-1"))
+                .andExpect(jsonPath("$.id").value("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"))
                 .andExpect(jsonPath("$.customerId").value("customer-1"))
                 .andExpect(jsonPath("$.lines[0].productId").value("product-1"))
                 .andExpect(jsonPath("$.lines[0].quantity").value(2))
@@ -164,19 +204,38 @@ class OrderControllerTest {
 
     @Test
     void should_return_404_problem_detail_when_id_is_unknown() throws Exception {
-        when(getOrder.get(new GetOrderQuery(new OrderId("unknown-order"))))
-                .thenThrow(new OrderNotFoundException(new OrderId("unknown-order")));
+        when(getOrder.get(new GetOrderQuery(new OrderId(UNKNOWN_ORDER_ID))))
+                .thenThrow(new OrderNotFoundException(new OrderId(UNKNOWN_ORDER_ID)));
 
-        mockMvc.perform(get("/orders/unknown-order"))
+        mockMvc.perform(get("/orders/00000000-0000-4000-8000-000000000000"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.title").value("Not Found"))
-                .andExpect(jsonPath("$.detail").value("Order unknown-order was not found"))
-                .andExpect(jsonPath("$.instance").value("/orders/unknown-order"))
+                .andExpect(jsonPath("$.detail").value("Order 00000000-0000-4000-8000-000000000000 was not found"))
+                .andExpect(jsonPath("$.instance").value("/orders/00000000-0000-4000-8000-000000000000"))
                 .andExpect(jsonPath("$.trace").doesNotExist())
                 .andExpect(jsonPath("$.exception").doesNotExist())
                 .andExpect(content().string(not(containsString("Exception"))))
                 .andExpect(content().string(not(containsString("com.demo"))));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"not-a-uuid", "<script>alert(1)", " ", "8A1D0C5E-4B7F-4C1A-9D3E-2F6B7A8C9D01"})
+    void should_return_404_without_echoing_the_id_when_id_is_malformed(String malformedId) throws Exception {
+        mockMvc.perform(get("/orders/{id}", malformedId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.title").value("Not Found"))
+                .andExpect(jsonPath("$.detail").value("Order was not found"))
+                .andExpect(jsonPath("$.instance").value("/orders"))
+                .andExpect(content().string(not(containsString("not-a-uuid"))))
+                .andExpect(content().string(not(containsString("script"))))
+                .andExpect(content().string(not(containsString("8A1D0C5E"))))
+                .andExpect(content().string(not(containsString("Exception"))))
+                .andExpect(content().string(not(containsString("com.demo"))));
+
+        verifyNoInteractions(getOrder);
     }
 }

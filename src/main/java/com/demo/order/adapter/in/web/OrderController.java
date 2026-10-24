@@ -26,8 +26,12 @@ public class OrderController {
         this.getOrder = getOrder;
     }
 
+    /** A path id that is not a well-formed order id names no order: 404, like an unknown one. */
     @GetMapping("/{id}")
     public OrderResponse get(@PathVariable String id) {
+        if (!OrderId.isWellFormed(id)) {
+            throw new MalformedOrderIdException();
+        }
         return OrderResponse.from(getOrder.get(new GetOrderQuery(new OrderId(id))));
     }
 

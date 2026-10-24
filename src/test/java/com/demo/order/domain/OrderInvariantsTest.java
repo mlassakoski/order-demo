@@ -21,12 +21,12 @@ class OrderInvariantsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, -1})
-    void should_refuse_order_line_when_quantity_is_below_one(int quantity) {
+    @ValueSource(ints = {0, -1, 1001})
+    void should_refuse_order_line_when_quantity_is_outside_1_to_1000(int quantity) {
         assertThatThrownBy(() -> new OrderLine(new ProductId("product-1"), quantity))
                 .isInstanceOf(InvalidQuantityException.class)
                 .isInstanceOf(DomainValidationException.class)
-                .hasMessage("Quantity must be at least 1");
+                .hasMessage("Quantity must be between 1 and 1000");
     }
 
     @ParameterizedTest

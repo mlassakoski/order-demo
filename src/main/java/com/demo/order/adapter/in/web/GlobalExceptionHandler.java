@@ -2,6 +2,7 @@ package com.demo.order.adapter.in.web;
 
 import com.demo.order.application.port.in.NotFoundException;
 import com.demo.order.domain.DomainValidationException;
+import java.net.URI;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +25,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final URI ORDERS = URI.create("/orders");
+
     @ExceptionHandler(DomainValidationException.class)
     ResponseEntity<ProblemDetail> handleDomainValidation(DomainValidationException exception) {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
@@ -36,11 +39,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.of(problem).build();
     }
 
+    /** Like any not-found, but the instance is the collection so the raw path value is never reflected. */
+    @ExceptionHandler(MalformedOrderIdException.class)
+    ResponseEntity<ProblemDetail> handleMalformedOrderId(MalformedOrderIdException exception) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        problem.setInstance(ORDERS);
+        return ResponseEntity.of(problem).build();
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException exception, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         var detail = exception.getBindingResult().getFieldErrors().stream()
-                .sorted(Comparator.comparing(FieldError::getField))
+                .sorted(Comparator.comparing(FieldError::getField)
+                        .thenComparing(FieldError::getDefaultMessage, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining("; "));
         var problem = ProblemDetail.forStatusAndDetail(status, detail);

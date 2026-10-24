@@ -19,16 +19,18 @@ class OrderInMemoryAdapterTest {
     @Test
     void should_return_an_equal_but_separate_order_when_saved_order_is_found() {
         var order = Order.rehydrate(
-                new OrderId("order-1"),
+                new OrderId("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"),
                 new CustomerId("customer-1"),
                 List.of(new OrderLine(new ProductId("product-1"), 2), new OrderLine(new ProductId("product-2"), 1)),
                 OrderStatus.PENDING);
 
         repository.save(order);
-        var found = repository.findById(new OrderId("order-1")).orElseThrow();
+        var found = repository
+                .findById(new OrderId("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"))
+                .orElseThrow();
 
         assertThat(found).isNotSameAs(order);
-        assertThat(found.id()).isEqualTo(new OrderId("order-1"));
+        assertThat(found.id()).isEqualTo(new OrderId("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"));
         assertThat(found.customerId()).isEqualTo(new CustomerId("customer-1"));
         assertThat(found.lines())
                 .containsExactly(
@@ -38,6 +40,7 @@ class OrderInMemoryAdapterTest {
 
     @Test
     void should_return_empty_when_order_is_unknown() {
-        assertThat(repository.findById(new OrderId("unknown"))).isEmpty();
+        assertThat(repository.findById(new OrderId("00000000-0000-4000-8000-000000000000")))
+                .isEmpty();
     }
 }

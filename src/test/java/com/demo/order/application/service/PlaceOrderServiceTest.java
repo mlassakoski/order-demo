@@ -1,20 +1,19 @@
 package com.demo.order.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.demo.order.application.port.in.PlaceOrderCommand;
 import com.demo.order.application.port.in.PlaceOrderUseCase;
-import com.demo.order.application.port.out.OrderRepositoryPort;
 import com.demo.order.domain.CustomerId;
-import com.demo.order.domain.Order;
-import com.demo.order.domain.OrderId;
+import com.demo.order.domain.EmptyOrderException;
+import com.demo.order.domain.InvalidIdentifierException;
+import com.demo.order.domain.InvalidOrderLineException;
 import com.demo.order.domain.OrderLine;
 import com.demo.order.domain.OrderStatus;
 import com.demo.order.domain.ProductId;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class PlaceOrderServiceTest {
@@ -48,18 +47,30 @@ class PlaceOrderServiceTest {
         });
     }
 
-    private static final class FakeOrderRepository implements OrderRepositoryPort {
+    @Test
+    void should_refuse_command_when_customer_is_missing() {
+        var lines = List.of(new OrderLine(new ProductId("product-1"), 2));
 
-        private final Map<OrderId, Order> orders = new HashMap<>();
+        assertThatThrownBy(() -> placeOrder.place(new PlaceOrderCommand(null, lines)))
+                .isInstanceOf(InvalidIdentifierException.class)
+                .hasMessage("Customer id must not be blank");
+        assertThat(repository.isEmpty()).isTrue();
+    }
 
-        @Override
-        public void save(Order order) {
-            orders.put(order.id(), order);
-        }
+    @Test
+    void should_refuse_command_when_lines_are_null() {
+        assertThatThrownBy(() -> placeOrder.place(new PlaceOrderCommand(new CustomerId("customer-1"), null)))
+                .isInstanceOf(EmptyOrderException.class)
+                .hasMessage("An order needs at least one order line");
+        assertThat(repository.isEmpty()).isTrue();
+    }
 
-        @Override
-        public Optional<Order> findById(OrderId id) {
-            return Optional.ofNullable(orders.get(id));
-        }
+    @Test
+    void should_refuse_command_when_one_of_its_lines_is_null() {
+        var lines = Arrays.asList(new OrderLine(new ProductId("product-1"), 2), null);
+
+        assertThatThrownBy(() -> new PlaceOrderCommand(new CustomerId("customer-1"), lines))
+                .isInstanceOf(InvalidOrderLineException.class)
+                .hasMessage("An order line must not be null");
     }
 }
