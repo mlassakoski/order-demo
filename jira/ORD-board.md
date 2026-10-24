@@ -242,11 +242,14 @@ Invalid orders are refused with a `400` problem detail and nothing is stored. In
 `git switch -c feature/ORD-13-refuse-invalid-orders` → `/clear` → `/implement ORD-13`.
 
 **Technical tasks**
-- [ ] **T1 Domain: invariants.** Abstract `DomainValidationException`; `EmptyOrderException`, `InvalidQuantityException`, `InvalidIdentifierException`. Seam: aggregate and value objects. Done when: each rule has a failing-then-passing test (no lines, quantity 0 and -1, blank customer id, blank product id).
-- [ ] **T2 Web: request validation.** Bean Validation on `PlaceOrderRequest` / `OrderLineRequest` (`@NotBlank`, `@NotEmpty`, `@Valid`, `@NotNull`, `@Min(1)`). Seam: `@WebMvcTest`. Done when: each invalid body returns 400 and the use case is never called.
-- [ ] **T3 Web: error model.** `GlobalExceptionHandler` (`@RestControllerAdvice` extending `ResponseEntityExceptionHandler`) maps `DomainValidationException` → 400 `ProblemDetail` with a readable `detail`. Only the 400 mapping now: 404 comes with ORD-14, 409 with ORD-23. Seam: `@WebMvcTest` with the use case throwing. Done when: a domain validation error returns a 400 problem detail.
-- [ ] **T4 Acceptance: `RefuseInvalidOrderIT`.** Done when: an order with no lines returns 400 problem detail and the storage port holds no order.
+- [x] **T1 Domain: invariants.** Abstract `DomainValidationException`; `EmptyOrderException`, `InvalidQuantityException`, `InvalidIdentifierException`. Seam: aggregate and value objects. Done when: each rule has a failing-then-passing test (no lines, quantity 0 and -1, blank customer id, blank product id).
+- [x] **T2 Web: request validation.** Bean Validation on `PlaceOrderRequest` / `OrderLineRequest` (`@NotBlank`, `@NotEmpty`, `@Valid`, `@NotNull`, `@Min(1)`). Seam: `@WebMvcTest`. Done when: each invalid body returns 400 and the use case is never called.
+- [x] **T3 Web: error model.** `GlobalExceptionHandler` (`@RestControllerAdvice` extending `ResponseEntityExceptionHandler`) maps `DomainValidationException` → 400 `ProblemDetail` with a readable `detail`. Only the 400 mapping now: 404 comes with ORD-14, 409 with ORD-23. Seam: `@WebMvcTest` with the use case throwing. Done when: a domain validation error returns a 400 problem detail.
+- [x] **T4 Acceptance: `RefuseInvalidOrderIT`.** Done when: an order with no lines returns 400 problem detail and the storage port holds no order.
 - [ ] **T5 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-13): refuse invalid orders`, PR.
+
+**Comments**
+- 2026-10-24 Claude: T1–T4 built test-first on `feature/ORD-13-refuse-invalid-orders` (ffbfd72, merged with ORD-14 in d5c1b93); `./mvnw verify` green. `RefuseInvalidOrderIT` green on first run; checks "nothing stored" with a spy on `OrderRepositoryPort.save`. Choices: `OrderLineRequest.quantity` is `Integer` so `@NotNull` catches a missing quantity; blank/null ids throw `InvalidIdentifierException`; empty-lines rule sits in the `Order` constructor so `rehydrate` enforces it too; bean-validation 400 `detail` lists failing fields sorted by name (message wording follows the JVM locale, tests assert field names). T5 runs at epic close.
 
 ### ORD-14 · Story: View an order
 
