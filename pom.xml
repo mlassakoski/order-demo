@@ -22,6 +22,7 @@
         <archunit.version>1.5.1</archunit.version>
         <jacoco.version>0.8.14</jacoco.version>
         <spotless.version>2.46.1</spotless.version>
+        <palantir-java-format.version>2.102.0</palantir-java-format.version>
         <!-- Minimum line coverage for domain and application code (quality gate) -->
         <coverage.minimum>0.80</coverage.minimum>
     </properties>
@@ -92,7 +93,9 @@
                 <version>${spotless.version}</version>
                 <configuration>
                     <java>
-                        <palantirJavaFormat/>
+                        <palantirJavaFormat>
+                            <version>${palantir-java-format.version}</version>
+                        </palantirJavaFormat>
                         <removeUnusedImports/>
                     </java>
                 </configuration>

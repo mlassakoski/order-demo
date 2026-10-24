@@ -18,15 +18,20 @@ class TestConventionsTest {
 
     @ArchTest
     static final ArchRule test_names_follow_should_when = methods()
-            .that().areAnnotatedWith(Test.class)
-            .or().areAnnotatedWith(ParameterizedTest.class)
-            .should().haveNameMatching("should_.+_when_.+")
+            .that()
+            .areAnnotatedWith(Test.class)
+            .or()
+            .areAnnotatedWith(ParameterizedTest.class)
+            .should()
+            .haveNameMatching("should_.+_when_.+")
             .because("test names describe behaviour: should_<behavior>_when_<condition>");
 
     @ArchTest
     static final ArchRule domain_tests_are_plain_junit = noClasses()
-            .that().resideInAPackage("..domain..")
-            .should().dependOnClassesThat()
+            .that()
+            .resideInAPackage("..domain..")
+            .should()
+            .dependOnClassesThat()
             .resideInAnyPackage("org.springframework..")
             .because("domain tests run without a Spring context");
 }

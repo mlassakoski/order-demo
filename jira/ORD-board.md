@@ -68,13 +68,16 @@ Create the project skeleton with no feature code: Spring Boot 4.1 / Java 21 / Ma
 Install the harness on the dev machine and prove the skeleton builds. If the build fails, hand the error to the agent as a bug fix (paste the log, ask for the root cause, never weaken a gate).
 
 **Acceptance criteria**
-- [ ] `bash scripts/setup-harness.sh` moved `harness-setup/` into `.claude/` and `.github/`
+- [x] `bash scripts/setup-harness.sh` moved `harness-setup/` into `.claude/` and `.github/`
 - [ ] `git init`, first commit `chore(ORD-3): skeleton and AI harness` on `main`
-- [ ] `./mvnw verify` green on JDK 21 (enforcer, spotless, ArchUnit, `ApplicationHealthIT`, JaCoCo)
-- [ ] `./mvnw spotless:check` green after the first build
+- [x] `./mvnw verify` green on JDK 21 (enforcer, spotless, ArchUnit, `ApplicationHealthIT`, JaCoCo)
+- [x] `./mvnw spotless:check` green after the first build
 
 **How to run with AI (if the build fails)**
 > The build fails with this error: [paste]. Find the root cause and fix it. Don't skip or weaken any check. Run `./mvnw verify` and show me the output.
+
+**Comments**
+- 2026-10-24 Claude: `./mvnw verify` and `spotless:check` green on JDK 21.0.1 and 25.0.2. Fixes: Palantir Java Format pinned to 2.102.0 and sources reformatted (no rule changed); `.mvn/jvm.config` flag `--sun-misc-unsafe-memory-access=allow` crashed Maven on JDK 21 ("Unrecognized option"), now prefixed with `-XX:+IgnoreUnrecognizedVMOptions` so 21 ignores it and 25 keeps the warning silenced. Open: the repo's first commit is `Skeleton + AI harness` on `master`, not `chore(ORD-3): ...` on `main`; renaming the branch (and rewording that commit, if wanted) is left to Mauricio.
 
 ### ORD-4 · Task: Install Matt Pocock's skills and configure them for this repo
 

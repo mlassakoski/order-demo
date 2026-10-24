@@ -23,6 +23,8 @@ class ApplicationHealthIT {
 
     @Test
     void should_report_up_when_application_is_running() throws Exception {
-        mockMvc.perform(get("/actuator/health")).andExpect(status().isOk()).andExpect(jsonPath("$.status").value("UP"));
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
     }
 }

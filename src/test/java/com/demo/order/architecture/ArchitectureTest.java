@@ -80,11 +80,8 @@ class ArchitectureTest {
             .resideInAPackage("..adapter.in.web..");
 
     @ArchTest
-    static final ArchRule services_live_in_application_service = classes()
-            .that()
-            .areAnnotatedWith(Service.class)
-            .should()
-            .resideInAPackage("..application.service..");
+    static final ArchRule services_live_in_application_service =
+            classes().that().areAnnotatedWith(Service.class).should().resideInAPackage("..application.service..");
 
     @ArchTest
     static final ArchRule driven_adapters_live_in_adapter_out = classes()
@@ -152,7 +149,8 @@ class ArchitectureTest {
             "use a specific domain or application exception so it maps to the right HTTP status");
 
     @ArchTest
-    static final ArchRule no_field_injection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION.because("use constructor injection");
+    static final ArchRule no_field_injection =
+            NO_CLASSES_SHOULD_USE_FIELD_INJECTION.because("use constructor injection");
 
     @ArchTest
     static final ArchRule no_java_util_logging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING.because("use SLF4J");
