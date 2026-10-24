@@ -10,3 +10,8 @@ target/
 .claude/.verify.log
 
 score.log
+
+# jdtls (Java LSP) workspace files
+.classpath
+.project
+.settings/

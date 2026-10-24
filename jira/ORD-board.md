@@ -125,13 +125,39 @@ Before relying on the harness in the demo, prove each guide and sensor actually 
 Run the **concept tour** in `docs/demo/RUNBOOK.md`: one check per concept.
 
 **Acceptance criteria**
-- [ ] `/memory` (or `/context`) shows `CLAUDE.md` → `AGENTS.md` loaded; `.claude/rules/domain.md` loads only after a domain file is opened
-- [ ] `/agents` lists `security-reviewer`; `/mcp` shows `context7`; `/plugin` shows `mattpocock-skills` and `jdtls-lsp`; `/hooks` shows PreToolUse and Stop
-- [ ] Asking the agent to edit `ArchitectureTest` is blocked by the PreToolUse hook
-- [ ] A deliberately failing test makes the Stop hook send the agent back to fix it (and it gives up after 3 attempts)
-- [ ] `git push` from the agent is denied
-- [ ] Plugin skill names noted (short `/grill-with-docs` or namespaced `/mattpocock-skills:grill-with-docs`)
-- [ ] `scripts/make-vanilla.sh` copy shows no Matt skills (plugin disabled per project)
+- [x] `/memory` (or `/context`) shows `CLAUDE.md` → `AGENTS.md` loaded; `.claude/rules/domain.md` loads only after a domain file is opened
+- [x] `/agents` lists `security-reviewer`; `/mcp` shows `context7`; `/plugin` shows `mattpocock-skills` and `jdtls-lsp`; `/hooks` shows PreToolUse and Stop
+- [x] Asking the agent to edit `ArchitectureTest` is blocked by the PreToolUse hook
+- [x] A deliberately failing test makes the Stop hook send the agent back to fix it (and it gives up after 3 attempts)
+- [x] `git push` from the agent is denied
+- [x] Plugin skill names noted (short `/grill-with-docs` or namespaced `/mattpocock-skills:grill-with-docs`)
+- [x] `scripts/make-vanilla.sh` copy shows no Matt skills (plugin disabled per project)
+
+**Comments**
+- 2026-10-24 Claude: concept tour run from the agent side on branch `feature/ORD-6-verify-harness` (on top of ORD-4). Evidence per check:
+  1. Memory: `CLAUDE.md` → `AGENTS.md` in the agent's context. Path rules: `domain.md` loaded only when `domain/package-info.java` was read, `tests.md` only when a test was read.
+  2. Slash UIs not visible to the agent, so checked the same things another way: `security-reviewer` offered as a subagent type; `context7` tools answered a query; `claude plugin list` shows both plugins enabled; both hooks fired (below). Mauricio: glance at `/agents`, `/mcp`, `/plugin`, `/hooks` once.
+  3. Edit to `ArchitectureTest` blocked: "Blocked by hook: this file is owned by the team".
+  4. Stop hook script run 3× against a failing `StopHookProbeTest`: attempts 1 and 2 exit 2 with the failure, attempt 3 "Build still failing after 3 attempts" exit 0, counter reset. Real wiring checked by ending a turn with the probe in place (see next comment).
+  5. `git push origin HEAD` denied by permissions.
+  6. Skills show namespaced: `/mattpocock-skills:implement-spec`, `/mattpocock-skills:implement` (README already says both forms work).
+  7. Vanilla copy (built in a temp dir, not `../order-demo-vanilla`, which stays for ORD-31): no harness files, plugin disabled; `claude -p` there lists no Matt skills.
+  Extra: LSP (jdtls) answers `workspaceSymbol OrderDemoApplication`. context7 docs name the module `spring-boot-webmvc-test` but not the package; package `org.springframework.boot.webmvc.test.autoconfigure` confirmed from the jar. CI (#13) not verifiable: ORD-5 skipped, no remote.
+  Findings, most severe first: (1) vanilla copy still contains `scripts/` (`install-matt-pocock-skills.sh`, `score-run.sh`, `setup-harness.sh`), which tips off the vanilla agent: ORD-7. (2) Stop hook only checks uncommitted `src`/`pom.xml` changes, so a failing build already committed passes silently: acceptable for the demo, noted only.
+- 2026-10-24 Claude: real Stop hook wiring confirmed: ending a turn with `StopHookProbeTest` failing returned "./mvnw verify failed (attempt 1 of 3)" with the assertion; probe deleted, build green. Also gitignored jdtls workspace files (`.classpath`, `.project`, `.settings/`) that the LSP plugin creates in the repo root.
+
+### ORD-7 · Task: Keep harness scripts out of the vanilla copy
+
+- **Status:** Draft
+- **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla repo, so the Run A agent can see `install-matt-pocock-skills.sh`, `setup-harness.sh` and `score-run.sh`. That leaks harness hints and skews the comparison.
+
+**Acceptance criteria**
+- [ ] `make-vanilla.sh` excludes `scripts/` (and `.vscode/`)
+- [ ] A fresh vanilla copy has no file mentioning Matt Pocock, the harness or scoring; `./mvnw verify` still green there
 
 ---
 
