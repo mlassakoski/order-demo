@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Creates the "vanilla" copy for demo run A: same code, no harness.
 # Removes: AGENTS.md, CLAUDE.md, CODING_STANDARDS.md, GLOSSARY.md, CONTRIBUTING.md, .claude/, jira/, docs/,
-# .github/, harness-setup/ and the architecture tests. Disables the mattpocock-skills plugin
+# .github/, harness-setup/, scripts/, .vscode/, the architecture tests and the Claude lines in
+# .gitignore. Disables the mattpocock-skills plugin
 # (kept aside so we can score the result afterwards with score-run.sh).
 #
 # Usage: scripts/make-vanilla.sh [target-dir]   (default: ../order-demo-vanilla)
@@ -20,9 +21,14 @@ rsync -a \
   --exclude '.git' --exclude 'target' \
   --exclude 'AGENTS.md' --exclude 'CLAUDE.md' --exclude 'CODING_STANDARDS.md' --exclude 'GLOSSARY.md' --exclude 'CONTRIBUTING.md' --exclude '.mcp.json' \
   --exclude '.claude' --exclude 'jira' --exclude 'docs' --exclude '.github' --exclude 'harness-setup' \
+  --exclude '/scripts' --exclude '.vscode' --exclude '.classpath' --exclude '.project' --exclude '.settings' \
   --exclude 'src/test/java/com/demo/order/architecture' \
   --exclude 'src/test/resources/archunit.properties' \
   "$src/" "$dst/"
+
+# The ignore entries for the Stop hook's files and the score log would hint at the harness.
+sed -i.bak -e '/^# Claude Code local files$/,/^\.claude\/\.verify\.log$/d' -e '/^score\.log$/d' "$dst/.gitignore"
+rm -f "$dst/.gitignore.bak"
 
 # The plugin is installed per user, so switch it off for this project only.
 mkdir -p "$dst/.claude"

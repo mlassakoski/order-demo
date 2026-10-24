@@ -156,8 +156,11 @@ Run the **concept tour** in `docs/demo/RUNBOOK.md`: one check per concept.
 Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla repo, so the Run A agent can see `install-matt-pocock-skills.sh`, `setup-harness.sh` and `score-run.sh`. That leaks harness hints and skews the comparison.
 
 **Acceptance criteria**
-- [ ] `make-vanilla.sh` excludes `scripts/` (and `.vscode/`)
-- [ ] A fresh vanilla copy has no file mentioning Matt Pocock, the harness or scoring; `./mvnw verify` still green there
+- [x] `make-vanilla.sh` excludes `scripts/` (and `.vscode/`)
+- [x] A fresh vanilla copy has no file mentioning Matt Pocock, the harness or scoring; `./mvnw verify` still green there
+
+**Comments**
+- 2026-10-24 Claude: excludes `scripts/`, `.vscode/` and jdtls files (`.classpath`, `.project`, `.settings/`); strips the `.claude/.verify-*` and `score.log` entries from the copy's `.gitignore`. Checked by building a fresh copy: grep for `pocock|harness|score|ORD-NN|first-pass|claude` over its tracked files finds nothing (except `.claude/settings.json`, which must name the plugin to disable it); `./mvnw verify` green there. Left as is: the ArchUnit dependency in `pom.xml` (unused once the architecture tests are removed; a weak hint, removing it changes the build).
 
 ---
 
