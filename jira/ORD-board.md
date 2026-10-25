@@ -343,12 +343,13 @@ From the ORD-15 retro: ORD-12/13/14 shipped request records with no size limits;
 From the ORD-15 retro: the Stop hook only fires for the main session and runs `./mvnw verify` in the main repo. Implementer subagents (`SubagentStop`, working in `.claude/worktrees/*`) were verified only because their prompts said so.
 
 **Acceptance criteria**
-- [ ] `SubagentStop` hook runs `verify-on-stop.sh` in the subagent's own working directory, same 3-attempt rule
+- [x] `SubagentStop` hook runs `verify-on-stop.sh` in the subagent's own working directory, same 3-attempt rule
 - [x] `.claude/worktrees/` in `.gitignore`
 - [ ] Checked as in ORD-6: a subagent leaving a failing test is sent back
 
 **Comments**
 - 2026-10-24 Claude: `verify-on-stop.sh` now reads `cwd` from the hook input and runs verify in that repo (subagent worktree or project); a `SubagentStop` in the project dir itself is skipped (the main Stop hook covers it); attempts counter also resets when nothing changed (it went stale before). Settings add `SubagentStop`. Simulated inputs in scratch worktrees: failing test in a fake subagent worktree → exit 2 naming the test, counter kept in that worktree; subagent in project dir → exit 0; main Stop, clean → exit 0; fixed → exit 0 and counter reset. Patch handed to Mauricio (hooks and settings are protected). Needs `jq`; without it the hook falls back to the project dir. Left: live check with a real subagent once applied.
+- 2026-10-24 Claude: patch applied by Mauricio, committed 6c554ad; `./mvnw verify` green. Live check with a background worktree subagent that planted a failing test: the hook fired in the subagent's worktree, verify failed on the probe, counter = 1, exit 2. But the subagent was **not** sent back: its result was returned (~23s) before the build finished. So the hook detects but does not yet block background subagents. Open: rerun the check with a foreground subagent, or treat the hook as a detector and have the orchestrator read `.claude/.verify-attempts` in the worktree before merging. Also seen: the worktree was created from `origin/main`, not the current branch, so implementer prompts must keep the "confirm base, reset if not" step.
 
 ### ORD-18 · Task: Acceptance test first in technical tasks
 
