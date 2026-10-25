@@ -84,4 +84,31 @@ class OrderTest {
         assertThat(order.customerId()).isEqualTo(new CustomerId("customer-1"));
         assertThat(order.lines()).containsExactly(new OrderLine(new ProductId("product-1"), 3));
     }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = OrderStatus.class,
+            names = {"SHIPPED", "CANCELLED"})
+    void should_refuse_and_leave_state_unchanged_when_cancelled_while_shipped_or_cancelled(OrderStatus status) {
+        var id = new OrderId("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01");
+        var order = Order.rehydrate(id, CUSTOMER, List.of(new OrderLine(new ProductId("product-1"), 3)), status);
+
+        assertThatThrownBy(order::cancel)
+                .isInstanceOfSatisfying(OrderCannotBeCancelledException.class, refusal -> {
+                    assertThat(refusal.orderId()).isEqualTo(new OrderId("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"));
+                    assertThat(refusal.currentState()).isEqualTo(status);
+                })
+                .isInstanceOf(DomainRuleViolationException.class);
+        assertThat(order.status()).isEqualTo(status);
+    }
+
+    @Test
+    void should_explain_why_when_a_shipped_order_cannot_be_cancelled() {
+        var id = new OrderId("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01");
+        var order = Order.rehydrate(
+                id, CUSTOMER, List.of(new OrderLine(new ProductId("product-1"), 3)), OrderStatus.SHIPPED);
+
+        assertThatThrownBy(order::cancel)
+                .hasMessage("Order 8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01 cannot be cancelled because it is SHIPPED");
+    }
 }

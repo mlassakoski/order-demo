@@ -52,8 +52,11 @@ public final class Order {
         return new Order(id, customerId, lines, status);
     }
 
-    /** Cancels the order: it becomes Cancelled. */
+    /** Cancels the order: a Pending or Paid order becomes Cancelled; any other state is refused unchanged. */
     public void cancel() {
+        if (status != OrderStatus.PENDING && status != OrderStatus.PAID) {
+            throw new OrderCannotBeCancelledException(id, status);
+        }
         status = OrderStatus.CANCELLED;
     }
 

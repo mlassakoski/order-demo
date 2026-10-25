@@ -1,6 +1,7 @@
 package com.demo.order.adapter.in.web;
 
 import com.demo.order.application.port.in.NotFoundException;
+import com.demo.order.domain.DomainRuleViolationException;
 import com.demo.order.domain.DomainValidationException;
 import java.net.URI;
 import java.util.Comparator;
@@ -36,6 +37,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     ResponseEntity<ProblemDetail> handleNotFound(NotFoundException exception) {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        return ResponseEntity.of(problem).build();
+    }
+
+    /** The request is valid but the aggregate's state forbids it; {@code currentState} says which state. */
+    @ExceptionHandler(DomainRuleViolationException.class)
+    ResponseEntity<ProblemDetail> handleDomainRuleViolation(DomainRuleViolationException exception) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        problem.setProperty("currentState", exception.currentState().name());
         return ResponseEntity.of(problem).build();
     }
 

@@ -23,6 +23,7 @@ import com.demo.order.application.port.in.PlaceOrderUseCase;
 import com.demo.order.domain.CustomerId;
 import com.demo.order.domain.EmptyOrderException;
 import com.demo.order.domain.Order;
+import com.demo.order.domain.OrderCannotBeCancelledException;
 import com.demo.order.domain.OrderId;
 import com.demo.order.domain.OrderLine;
 import com.demo.order.domain.OrderStatus;
@@ -272,6 +273,39 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.title").value("Not Found"))
                 .andExpect(jsonPath("$.detail").value("Order 00000000-0000-4000-8000-000000000000 was not found"))
                 .andExpect(jsonPath("$.trace").doesNotExist())
+                .andExpect(content().string(not(containsString("Exception"))))
+                .andExpect(content().string(not(containsString("com.demo"))));
+    }
+
+    static Stream<Arguments> refusedStates() {
+        return Stream.of(
+                Arguments.of(
+                        OrderStatus.SHIPPED,
+                        "Order 8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01 cannot be cancelled because it is SHIPPED",
+                        "SHIPPED"),
+                Arguments.of(
+                        OrderStatus.CANCELLED,
+                        "Order 8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01 cannot be cancelled because it is CANCELLED",
+                        "CANCELLED"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("refusedStates")
+    void should_return_409_problem_detail_with_current_state_when_order_cannot_be_cancelled(
+            OrderStatus state, String expectedDetail, String expectedState) throws Exception {
+        when(cancelOrder.cancel(new CancelOrderCommand(new OrderId(ORDER_ID))))
+                .thenThrow(new OrderCannotBeCancelledException(new OrderId(ORDER_ID), state));
+
+        mockMvc.perform(post("/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01/cancel"))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.title").value("Conflict"))
+                .andExpect(jsonPath("$.detail").value(expectedDetail))
+                .andExpect(jsonPath("$.currentState").value(expectedState))
+                .andExpect(jsonPath("$.instance").value("/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01/cancel"))
+                .andExpect(jsonPath("$.trace").doesNotExist())
+                .andExpect(jsonPath("$.exception").doesNotExist())
                 .andExpect(content().string(not(containsString("Exception"))))
                 .andExpect(content().string(not(containsString("com.demo"))));
     }
