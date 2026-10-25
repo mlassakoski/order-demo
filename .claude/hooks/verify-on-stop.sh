@@ -11,8 +11,19 @@ dir="$(printf '%s' "$input" | jq -r '.cwd // empty' 2> /dev/null)"
 project="${CLAUDE_PROJECT_DIR:-.}"
 dir="$(git -C "${dir:-$project}" rev-parse --show-toplevel 2> /dev/null || echo "${dir:-$project}")"
 
+# Build only in the project or one of its own worktrees: never run an untrusted ./mvnw.
+project_dir="$(cd "$project" && pwd -P)"
+dir="$(cd "$dir" 2> /dev/null && pwd -P)" || exit 0
+known=0
+while IFS= read -r line; do
+  case "$line" in
+    "worktree "*) [ "$(cd "${line#worktree }" 2> /dev/null && pwd -P)" = "$dir" ] && known=1 ;;
+  esac
+done <<< "$(git -C "$project_dir" worktree list --porcelain 2> /dev/null)"
+[ "$known" = 1 ] || exit 0
+
 # A subagent in the project directory itself is covered by the main session's Stop hook.
-if [ "$event" = "SubagentStop" ] && [ "$dir" = "$(cd "$project" && pwd -P)" ]; then
+if [ "$event" = "SubagentStop" ] && [ "$dir" = "$project_dir" ]; then
   exit 0
 fi
 
