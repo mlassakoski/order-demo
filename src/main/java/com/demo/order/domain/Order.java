@@ -11,7 +11,7 @@ public final class Order {
     private final OrderId id;
     private final CustomerId customerId;
     private final List<OrderLine> lines;
-    private final OrderStatus status;
+    private OrderStatus status;
 
     private Order(OrderId id, CustomerId customerId, List<OrderLine> lines, OrderStatus status) {
         if (id == null) {
@@ -50,6 +50,11 @@ public final class Order {
     /** Rebuilds an order from storage, keeping its identifier and state. */
     public static Order rehydrate(OrderId id, CustomerId customerId, List<OrderLine> lines, OrderStatus status) {
         return new Order(id, customerId, lines, status);
+    }
+
+    /** Cancels the order: it becomes Cancelled. */
+    public void cancel() {
+        status = OrderStatus.CANCELLED;
     }
 
     public OrderId id() {

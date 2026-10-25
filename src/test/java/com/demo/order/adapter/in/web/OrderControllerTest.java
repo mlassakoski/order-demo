@@ -13,6 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.demo.order.application.port.in.CancelOrderCommand;
+import com.demo.order.application.port.in.CancelOrderUseCase;
 import com.demo.order.application.port.in.GetOrderQuery;
 import com.demo.order.application.port.in.GetOrderUseCase;
 import com.demo.order.application.port.in.OrderNotFoundException;
@@ -56,6 +58,9 @@ class OrderControllerTest {
 
     @MockitoBean
     private GetOrderUseCase getOrder;
+
+    @MockitoBean
+    private CancelOrderUseCase cancelOrder;
 
     OrderControllerTest(@Autowired MockMvc mockMvc) {
         this.mockMvc = mockMvc;
@@ -237,5 +242,56 @@ class OrderControllerTest {
                 .andExpect(content().string(not(containsString("com.demo"))));
 
         verifyNoInteractions(getOrder);
+    }
+
+    @Test
+    void should_return_200_with_the_cancelled_order_when_order_is_cancelled() throws Exception {
+        var lines = List.of(new OrderLine(new ProductId("product-1"), 2));
+        when(cancelOrder.cancel(new CancelOrderCommand(new OrderId(ORDER_ID))))
+                .thenReturn(Order.rehydrate(
+                        new OrderId(ORDER_ID), new CustomerId("customer-1"), lines, OrderStatus.CANCELLED));
+
+        mockMvc.perform(post("/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01/cancel"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"))
+                .andExpect(jsonPath("$.customerId").value("customer-1"))
+                .andExpect(jsonPath("$.lines[0].productId").value("product-1"))
+                .andExpect(jsonPath("$.lines[0].quantity").value(2))
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+    }
+
+    @Test
+    void should_return_404_problem_detail_when_cancelling_an_unknown_id() throws Exception {
+        when(cancelOrder.cancel(new CancelOrderCommand(new OrderId(UNKNOWN_ORDER_ID))))
+                .thenThrow(new OrderNotFoundException(new OrderId(UNKNOWN_ORDER_ID)));
+
+        mockMvc.perform(post("/orders/00000000-0000-4000-8000-000000000000/cancel"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.title").value("Not Found"))
+                .andExpect(jsonPath("$.detail").value("Order 00000000-0000-4000-8000-000000000000 was not found"))
+                .andExpect(jsonPath("$.trace").doesNotExist())
+                .andExpect(content().string(not(containsString("Exception"))))
+                .andExpect(content().string(not(containsString("com.demo"))));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"not-a-uuid", "<script>alert(1)", " ", "8A1D0C5E-4B7F-4C1A-9D3E-2F6B7A8C9D01"})
+    void should_return_404_without_echoing_the_id_when_cancelling_a_malformed_id(String malformedId) throws Exception {
+        mockMvc.perform(post("/orders/{id}/cancel", malformedId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.title").value("Not Found"))
+                .andExpect(jsonPath("$.detail").value("Order was not found"))
+                .andExpect(jsonPath("$.instance").value("/orders"))
+                .andExpect(content().string(not(containsString("not-a-uuid"))))
+                .andExpect(content().string(not(containsString("script"))))
+                .andExpect(content().string(not(containsString("8A1D0C5E"))))
+                .andExpect(content().string(not(containsString("Exception"))))
+                .andExpect(content().string(not(containsString("com.demo"))));
+
+        verifyNoInteractions(cancelOrder);
     }
 }
