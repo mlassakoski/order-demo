@@ -173,7 +173,7 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 
 ### ORD-8 · Task: Agents push feature branches and open PRs
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-5
 
@@ -181,9 +181,12 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 Mauricio's decision (2026-10-24): agents push their feature branch and open the PR; humans review and approve on GitHub. Safe now that `main` is protected (ORD-5: PR, code-owner approval, `verify`, no force push). Agents still never merge, push to `main` or force-push.
 
 **Acceptance criteria**
-- [ ] `.claude/settings.json`: allow pushing `feature/*` and `gh pr create|view|edit`; deny force-push, pushes to `main` and `gh pr merge` (protected file: patch applied by Mauricio)
+- [x] `.claude/settings.json`: allow pushing `feature/*` and `gh pr create|view|edit`; deny force-push, pushes to `main` and `gh pr merge` (protected file: patch applied by Mauricio)
 - [x] `AGENTS.md`, `CONTRIBUTING.md`, `README.md`, `docs/agents/issue-tracker.md` say the same
-- [ ] Checked: agent pushes a feature branch and opens a PR; `git push origin main` and `gh pr merge` are denied
+- [x] Checked: agent pushes a feature branch and opens a PR; `git push origin main` and `gh pr merge` are denied
+
+**Comments**
+- 2026-10-24 Claude: settings patch applied by Mauricio (bda160a). Checked: `git push origin main` and `gh pr merge` denied by permissions; feature branch pushed and PR opened by the agent. In Review.
 
 ---
 
