@@ -399,13 +399,13 @@ From the ORD-15 retro: `PlaceOrderIT`, `ViewOrderIT` and `RefuseInvalidOrderIT` 
 
 ## ORD-20 · Epic: Cancel orders (live demo)
 
-Status: Refinement · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
+Status: In Review · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
 
 Customers can cancel an order until it ships. Built live in the talk; measured against a vanilla run.
 
 ### ORD-21 · Task: Refinement: cancel orders
 
-- **Status:** In Progress
+- **Status:** Done
 - **Assignee:** Mauricio (with Claude) · **Labels:** refinement, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-14
 
@@ -419,14 +419,16 @@ Decisions to expect: cancelling twice (error or success?), refunds for Paid orde
 **Acceptance criteria**
 - [x] Spec `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
 - [x] Glossary updated if new terms appear; ADR only if a decision is hard to reverse
-- [ ] Stories ORD-22 and ORD-23 generated (shape below), reviewed and moved to `Ready for Agent`
+- [x] Stories ORD-22 and ORD-23 generated (shape below), reviewed and moved to `Ready for Agent`
 
 **Comments**
 - 2026-10-24 Claude: refinement run in the agent session (grilling in two rounds, 14 decisions, all as recommended; summary confirmed by Mauricio). Spec written; Cancelled marked final in `GLOSSARY.md`; no ADR. ORD-22 and ORD-23 regenerated as Draft, acceptance test first. Left: Mauricio moves them to `Ready for Agent`.
+- 2026-10-24 Claude: spec merged in PR #11; Mauricio approved ORD-22 and ORD-23 (Ready for Agent). Done.
+
 
 ### ORD-22 · Story: Cancel a Pending or Paid order
 
-- **Status:** Draft
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21
@@ -438,24 +440,28 @@ As a customer, I want to cancel my order before it ships, so that I don't pay fo
 Cancelling a Pending or Paid order returns the updated order as Cancelled. Cuts through every layer: `Order.cancel`, cancel-order use case, `POST /orders/{id}/cancel` (no request body). Spec: `docs/specs/ORD-20-cancel-orders.md`.
 
 **Acceptance criteria**
-- [ ] Given a Pending order, when it is cancelled, then the response is `200` with the order (same shape as `GET`) in state Cancelled and the stored order is Cancelled
-- [ ] Given a Paid order, when it is cancelled, then the response is `200` with state Cancelled
-- [ ] Given an unknown or malformed identifier, when it is cancelled, then the response is the same `404` problem detail as `GET`, without the raw value
-- [ ] Acceptance test (`*IT`) for the happy path
+- [x] Given a Pending order, when it is cancelled, then the response is `200` with the order (same shape as `GET`) in state Cancelled and the stored order is Cancelled
+- [x] Given a Paid order, when it is cancelled, then the response is `200` with state Cancelled
+- [x] Given an unknown or malformed identifier, when it is cancelled, then the response is the same `404` problem detail as `GET`, without the raw value
+- [x] Acceptance test (`*IT`) for the happy path
 
 **Execution**
 `/implement-spec ORD-20` (or `/implement ORD-22`).
 
 **Technical tasks**
-- [ ] **T1 Acceptance: `CancelOrderIT`.** Red until T2–T4 land. Done when: place → cancel → `GET` shows Cancelled.
-- [ ] **T2 Domain: `Order.cancel()`.** Allowed from Pending and Paid; sets Cancelled. Seam: aggregate (states set up with `Order.rehydrate`). Done when: Pending → Cancelled and Paid → Cancelled.
-- [ ] **T3 Application: cancel-order use case.** `CancelOrderUseCase` + `CancelOrderCommand`, `CancelOrderService`: load → `cancel()` → save; unknown id → `OrderNotFoundException`. Seam: use case with the in-memory fake port. Done when: the stored order is Cancelled after the call.
-- [ ] **T4 Web: `POST /orders/{id}/cancel`.** Returns 200 with `OrderResponse`; malformed id handled like `GET`. Seam: `@WebMvcTest`. Done when: 200 body with state Cancelled; 404 for unknown and malformed id (existing mapping).
-- [ ] **T5 Close.** `./mvnw verify` green, `/code-review main` clean, `security-reviewer` PASS, commit `feat(ORD-22): cancel an order`, push and open the PR, status `In Review`.
+- [x] **T1 Acceptance: `CancelOrderIT`.** Red until T2–T4 land. Done when: place → cancel → `GET` shows Cancelled.
+- [x] **T2 Domain: `Order.cancel()`.** Allowed from Pending and Paid; sets Cancelled. Seam: aggregate (states set up with `Order.rehydrate`). Done when: Pending → Cancelled and Paid → Cancelled.
+- [x] **T3 Application: cancel-order use case.** `CancelOrderUseCase` + `CancelOrderCommand`, `CancelOrderService`: load → `cancel()` → save; unknown id → `OrderNotFoundException`. Seam: use case with the in-memory fake port. Done when: the stored order is Cancelled after the call.
+- [x] **T4 Web: `POST /orders/{id}/cancel`.** Returns 200 with `OrderResponse`; malformed id handled like `GET`. Seam: `@WebMvcTest`. Done when: 200 body with state Cancelled; 404 for unknown and malformed id (existing mapping).
+- [x] **T5 Close.** `./mvnw verify` green, `/code-review main` clean, `security-reviewer` PASS, commit `feat(ORD-22): cancel an order`, push and open the PR, status `In Review`.
+
+**Comments**
+- 2026-10-24 Claude: T1–T4 built test-first on `feature/ORD-22-cancel-order` (4d6d42a); T1 `CancelOrderIT` was red (404) until T4. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `Order.status` no longer final; GET and cancel share the malformed-id check; `FakeOrderRepository` now stores copies like the real adapter, so a missing save fails the use case test. T5 runs at epic close.
+- 2026-10-24 Claude: epic close. Reviews since c199963: Standards (no hard violations), Spec (no blockers), `security-reviewer` PASS. Fixes in 7150fb5: Paid path and cancel-twice added to the ITs; `DomainRuleViolationException` carries no state (generic `problemProperties()`, only `OrderCannotBeCancelledException` sets `currentState`); accessor `currentStatus()`; null id says "must not be null"; javadoc; vanilla script simplified. Security re-review PASS; follow-up hardening noted in the PR (reserved keys in `problemProperties()`). `./mvnw verify` green. Pushed and PR opened. In Review.
 
 ### ORD-23 · Story: Refuse to cancel Shipped or Cancelled orders
 
-- **Status:** Draft
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-22
@@ -467,18 +473,22 @@ As a customer, I want a clear refusal when my order can no longer be cancelled, 
 Cancelling a Shipped or already Cancelled order is refused with `409` and the order is unchanged. Introduces `DomainRuleViolationException` and `OrderCannotBeCancelledException`, and the 409 mapping. Spec: `docs/specs/ORD-20-cancel-orders.md`.
 
 **Acceptance criteria**
-- [ ] Given a Shipped order, when it is cancelled, then the response is `409` problem detail and it is still Shipped
-- [ ] Given a Cancelled order, when it is cancelled, then the response is `409` problem detail and it is still Cancelled
-- [ ] The problem detail reads "Order <id> cannot be cancelled because it is <STATE>" and has a `currentState` property
+- [x] Given a Shipped order, when it is cancelled, then the response is `409` problem detail and it is still Shipped
+- [x] Given a Cancelled order, when it is cancelled, then the response is `409` problem detail and it is still Cancelled
+- [x] The problem detail reads "Order <id> cannot be cancelled because it is <STATE>" and has a `currentState` property
 
 **Execution**
 `/implement-spec ORD-20` (or `/implement ORD-23`).
 
 **Technical tasks**
-- [ ] **T1 Acceptance: `RefuseCancellationIT`.** Seed a Shipped order through `OrderRepositoryPort` (no ship API yet), then cancel. Red until T2–T3 land. Done when: 409 with `currentState`, and `GET` still shows Shipped.
-- [ ] **T2 Domain: cancellation rule.** Abstract `DomainRuleViolationException`; `OrderCannotBeCancelledException` carrying the order id and current state; `cancel()` throws it from Shipped and Cancelled and leaves the state unchanged. Seam: aggregate. Done when: both refusals tested, state asserted unchanged.
-- [ ] **T3 Web: 409 mapping.** `GlobalExceptionHandler` maps `DomainRuleViolationException` → 409 `ProblemDetail` with the detail above and a `currentState` property. Seam: `@WebMvcTest`. Done when: 409 problem detail with `currentState`.
-- [ ] **T4 Close.** `./mvnw verify` green, `/code-review main` clean, `security-reviewer` PASS, commit `feat(ORD-23): refuse to cancel shipped or cancelled orders`, push and open the PR, status `In Review`.
+- [x] **T1 Acceptance: `RefuseCancellationIT`.** Seed a Shipped order through `OrderRepositoryPort` (no ship API yet), then cancel. Red until T2–T3 land. Done when: 409 with `currentState`, and `GET` still shows Shipped.
+- [x] **T2 Domain: cancellation rule.** Abstract `DomainRuleViolationException`; `OrderCannotBeCancelledException` carrying the order id and current state; `cancel()` throws it from Shipped and Cancelled and leaves the state unchanged. Seam: aggregate. Done when: both refusals tested, state asserted unchanged.
+- [x] **T3 Web: 409 mapping.** `GlobalExceptionHandler` maps `DomainRuleViolationException` → 409 `ProblemDetail` with the detail above and a `currentState` property. Seam: `@WebMvcTest`. Done when: 409 problem detail with `currentState`.
+- [x] **T4 Close.** `./mvnw verify` green, `/code-review main` clean, `security-reviewer` PASS, commit `feat(ORD-23): refuse to cancel shipped or cancelled orders`, push and open the PR, status `In Review`.
+
+**Comments**
+- 2026-10-24 Claude: T1–T3 built test-first on `feature/ORD-23-refuse-cancellation` (d2881b8); T1 `RefuseCancellationIT` was red (200) until T3. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `DomainRuleViolationException` exposes an abstract `currentState()` so the 409 handler stays generic; 409 `instance` is the request path (id already validated). T4 runs at epic close.
+- 2026-10-24 Claude: epic close. Reviews since c199963: Standards (no hard violations), Spec (no blockers), `security-reviewer` PASS. Fixes in 7150fb5: Paid path and cancel-twice added to the ITs; `DomainRuleViolationException` carries no state (generic `problemProperties()`, only `OrderCannotBeCancelledException` sets `currentState`); accessor `currentStatus()`; null id says "must not be null"; javadoc; vanilla script simplified. Security re-review PASS; follow-up hardening noted in the PR (reserved keys in `problemProperties()`). `./mvnw verify` green. Pushed and PR opened. In Review.
 
 ### ORD-24 · Task: Retro: cancel orders
 
@@ -500,13 +510,17 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 ### ORD-31 · Task: Create the vanilla baseline
 
-- **Status:** Backlog
+- **Status:** Done
 - **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-14
 
 **Acceptance criteria**
-- [ ] `scripts/make-vanilla.sh` created `../order-demo-vanilla` from `main` after ORD-12 to ORD-14 merged
-- [ ] No harness files, no architecture tests, plugin disabled; `./mvnw verify` green there
+- [x] `scripts/make-vanilla.sh` created `../order-demo-vanilla` from `main` after ORD-12 to ORD-14 merged
+- [x] No harness files, no architecture tests, plugin disabled; `./mvnw verify` green there
+
+**Comments**
+- 2026-10-24 Claude: `../order-demo-vanilla` created from `main` at c199963 (after ORD-12 to ORD-14, before any ORD-22 code), commit 5bc188c. No harness files, no architecture tests, plugin disabled, `./mvnw verify` green there. Fixed on the way: `make-vanilla.sh` let ORD-17's `.claude/worktrees/` ignore entry through; now strips every `.claude/` ignore line. Ticket keys in IT javadoc kept (same product code in both runs). Done.
+
 
 ### ORD-32 · Task: Rehearse both runs and fill the scorecard
 

@@ -1,5 +1,7 @@
 package com.demo.order.adapter.in.web;
 
+import com.demo.order.application.port.in.CancelOrderCommand;
+import com.demo.order.application.port.in.CancelOrderUseCase;
 import com.demo.order.application.port.in.GetOrderQuery;
 import com.demo.order.application.port.in.GetOrderUseCase;
 import com.demo.order.application.port.in.PlaceOrderUseCase;
@@ -20,19 +22,23 @@ public class OrderController {
 
     private final PlaceOrderUseCase placeOrder;
     private final GetOrderUseCase getOrder;
+    private final CancelOrderUseCase cancelOrder;
 
-    public OrderController(PlaceOrderUseCase placeOrder, GetOrderUseCase getOrder) {
+    public OrderController(PlaceOrderUseCase placeOrder, GetOrderUseCase getOrder, CancelOrderUseCase cancelOrder) {
         this.placeOrder = placeOrder;
         this.getOrder = getOrder;
+        this.cancelOrder = cancelOrder;
     }
 
-    /** A path id that is not a well-formed order id names no order: 404, like an unknown one. */
     @GetMapping("/{id}")
     public OrderResponse get(@PathVariable String id) {
-        if (!OrderId.isWellFormed(id)) {
-            throw new MalformedOrderIdException();
-        }
-        return OrderResponse.from(getOrder.get(new GetOrderQuery(new OrderId(id))));
+        return OrderResponse.from(getOrder.get(new GetOrderQuery(orderId(id))));
+    }
+
+    /** No request body: the path names the order, and the response is the order as it is now. */
+    @PostMapping("/{id}/cancel")
+    public OrderResponse cancel(@PathVariable String id) {
+        return OrderResponse.from(cancelOrder.cancel(new CancelOrderCommand(orderId(id))));
     }
 
     @PostMapping
@@ -40,5 +46,13 @@ public class OrderController {
         var order = placeOrder.place(request.toCommand());
         return ResponseEntity.created(URI.create("/orders/" + order.id().value()))
                 .body(OrderResponse.from(order));
+    }
+
+    /** A path id that is not a well-formed order id names no order: 404, like an unknown one. */
+    private static OrderId orderId(String pathId) {
+        if (!OrderId.isWellFormed(pathId)) {
+            throw new MalformedOrderIdException();
+        }
+        return new OrderId(pathId);
     }
 }

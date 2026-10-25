@@ -8,7 +8,7 @@ public record GetOrderQuery(OrderId orderId) {
 
     public GetOrderQuery {
         if (orderId == null) {
-            throw new InvalidIdentifierException("Order id");
+            throw InvalidIdentifierException.missing("Order id");
         }
     }
 }

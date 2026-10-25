@@ -26,8 +26,9 @@ rsync -a \
   --exclude 'src/test/resources/archunit.properties' \
   "$src/" "$dst/"
 
-# The ignore entries for the Stop hook's files and the score log would hint at the harness.
-sed -i.bak -e '/^# Claude Code local files$/,/^\.claude\/\.verify\.log$/d' -e '/^score\.log$/d' "$dst/.gitignore"
+# The ignore entries for Claude Code files and the score log would hint at the harness.
+sed -i.bak -e '/^# Claude Code local files$/d' -e '/^# Claude Code subagent worktrees$/d' \
+  -e '/^\.claude\//d' -e '/^score\.log$/d' "$dst/.gitignore"
 rm -f "$dst/.gitignore.bak"
 
 # The plugin is installed per user, so switch it off for this project only.

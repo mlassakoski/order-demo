@@ -11,7 +11,7 @@ public final class Order {
     private final OrderId id;
     private final CustomerId customerId;
     private final List<OrderLine> lines;
-    private final OrderStatus status;
+    private OrderStatus status;
 
     private Order(OrderId id, CustomerId customerId, List<OrderLine> lines, OrderStatus status) {
         if (id == null) {
@@ -50,6 +50,14 @@ public final class Order {
     /** Rebuilds an order from storage, keeping its identifier and state. */
     public static Order rehydrate(OrderId id, CustomerId customerId, List<OrderLine> lines, OrderStatus status) {
         return new Order(id, customerId, lines, status);
+    }
+
+    /** Cancels the order: a Pending or Paid order becomes Cancelled; any other state is refused unchanged. */
+    public void cancel() {
+        if (status != OrderStatus.PENDING && status != OrderStatus.PAID) {
+            throw new OrderCannotBeCancelledException(id, status);
+        }
+        status = OrderStatus.CANCELLED;
     }
 
     public OrderId id() {
