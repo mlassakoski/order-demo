@@ -21,7 +21,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-/** Acceptance: cancelling a Shipped order is refused and the order stays Shipped (ORD-23). */
+/** Acceptance: cancelling a Shipped or Cancelled order is refused and the order keeps its state (ORD-23). */
 @SpringBootTest
 @AutoConfigureMockMvc
 class RefuseCancellationIT {
@@ -56,5 +56,33 @@ class RefuseCancellationIT {
         mockMvc.perform(get("/orders/3f2b9c1d-7e4a-4b6c-8d2e-1a9f0b7c6d53"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SHIPPED"));
+    }
+
+    @Test
+    void should_return_409_and_keep_the_order_cancelled_when_customer_cancels_a_cancelled_order() throws Exception {
+        var location = mockMvc.perform(
+                        post("/orders").contentType(MediaType.APPLICATION_JSON).content("""
+                        {
+                          "customerId": "customer-1",
+                          "lines": [{"productId": "product-1", "quantity": 2}]
+                        }
+                        """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+        var id = location.substring("/orders/".length());
+        mockMvc.perform(post(location + "/cancel")).andExpect(status().isOk());
+
+        mockMvc.perform(post(location + "/cancel"))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.detail").value("Order " + id + " cannot be cancelled because it is CANCELLED"))
+                .andExpect(jsonPath("$.currentState").value("CANCELLED"));
+
+        mockMvc.perform(get(location))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
     }
 }

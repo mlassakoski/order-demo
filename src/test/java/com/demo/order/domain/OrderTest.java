@@ -2,6 +2,7 @@ package com.demo.order.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,8 @@ class OrderTest {
         assertThatThrownBy(order::cancel)
                 .isInstanceOfSatisfying(OrderCannotBeCancelledException.class, refusal -> {
                     assertThat(refusal.orderId()).isEqualTo(new OrderId("8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01"));
-                    assertThat(refusal.currentState()).isEqualTo(status);
+                    assertThat(refusal.currentStatus()).isEqualTo(status);
+                    assertThat(refusal.problemProperties()).containsExactly(entry("currentState", status.name()));
                 })
                 .isInstanceOf(DomainRuleViolationException.class);
         assertThat(order.status()).isEqualTo(status);

@@ -1,8 +1,10 @@
 package com.demo.order.domain;
 
+import java.util.Map;
+
 /**
  * An operation the aggregate's current state does not allow. Its message is safe to show to the caller, and
- * {@link #currentState()} names the state that forbids it.
+ * {@link #problemProperties()} adds any rule-specific details.
  */
 public abstract class DomainRuleViolationException extends RuntimeException {
 
@@ -12,6 +14,8 @@ public abstract class DomainRuleViolationException extends RuntimeException {
         super(message);
     }
 
-    /** The state the aggregate is in, which forbids the operation. */
-    public abstract Enum<?> currentState();
+    /** Extra properties, safe to show to the caller, that describe this violation. Empty unless a rule adds some. */
+    public Map<String, Object> problemProperties() {
+        return Map.of();
+    }
 }

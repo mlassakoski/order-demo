@@ -59,6 +59,6 @@ class CancelOrderServiceTest {
     void should_refuse_command_when_order_id_is_missing() {
         assertThatThrownBy(() -> new CancelOrderCommand(null))
                 .isInstanceOf(InvalidIdentifierException.class)
-                .hasMessage("Order id must not be blank");
+                .hasMessage("Order id must not be null");
     }
 }

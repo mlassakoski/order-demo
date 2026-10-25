@@ -51,6 +51,6 @@ class GetOrderServiceTest {
     void should_refuse_query_when_order_id_is_missing() {
         assertThatThrownBy(() -> new GetOrderQuery(null))
                 .isInstanceOf(InvalidIdentifierException.class)
-                .hasMessage("Order id must not be blank");
+                .hasMessage("Order id must not be null");
     }
 }

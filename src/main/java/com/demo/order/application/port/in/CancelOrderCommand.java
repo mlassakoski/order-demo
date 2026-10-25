@@ -8,7 +8,7 @@ public record CancelOrderCommand(OrderId orderId) {
 
     public CancelOrderCommand {
         if (orderId == null) {
-            throw new InvalidIdentifierException("Order id");
+            throw InvalidIdentifierException.missing("Order id");
         }
     }
 }

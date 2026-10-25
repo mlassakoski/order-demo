@@ -21,6 +21,7 @@ import com.demo.order.application.port.in.OrderNotFoundException;
 import com.demo.order.application.port.in.PlaceOrderCommand;
 import com.demo.order.application.port.in.PlaceOrderUseCase;
 import com.demo.order.domain.CustomerId;
+import com.demo.order.domain.DomainRuleViolationException;
 import com.demo.order.domain.EmptyOrderException;
 import com.demo.order.domain.Order;
 import com.demo.order.domain.OrderCannotBeCancelledException;
@@ -308,6 +309,31 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.exception").doesNotExist())
                 .andExpect(content().string(not(containsString("Exception"))))
                 .andExpect(content().string(not(containsString("com.demo"))));
+    }
+
+    @Test
+    void should_return_409_problem_detail_without_extra_properties_when_rule_violation_declares_none()
+            throws Exception {
+        when(cancelOrder.cancel(new CancelOrderCommand(new OrderId(ORDER_ID))))
+                .thenThrow(new RuleViolationWithoutProperties("Not allowed right now"));
+
+        mockMvc.perform(post("/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01/cancel"))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.detail").value("Not allowed right now"))
+                .andExpect(jsonPath("$.currentState").doesNotExist())
+                .andExpect(jsonPath("$.properties").doesNotExist());
+    }
+
+    /** A rule violation that adds no problem properties, to pin the default of the hook. */
+    private static final class RuleViolationWithoutProperties extends DomainRuleViolationException {
+
+        private static final long serialVersionUID = 1L;
+
+        RuleViolationWithoutProperties(String message) {
+            super(message);
+        }
     }
 
     @ParameterizedTest

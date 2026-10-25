@@ -40,11 +40,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.of(problem).build();
     }
 
-    /** The request is valid but the aggregate's state forbids it; {@code currentState} says which state. */
+    /** The request is valid but the aggregate's state forbids it; the violation's problem properties are copied on. */
     @ExceptionHandler(DomainRuleViolationException.class)
     ResponseEntity<ProblemDetail> handleDomainRuleViolation(DomainRuleViolationException exception) {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
-        problem.setProperty("currentState", exception.currentState().name());
+        exception.problemProperties().forEach(problem::setProperty);
         return ResponseEntity.of(problem).build();
     }
 
