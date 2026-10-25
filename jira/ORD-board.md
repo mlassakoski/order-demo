@@ -28,7 +28,7 @@ Starting a ticket (agent or human): `git switch -c feature/ORD-NN-slug` → `/cl
 | Sprint | Goal | Tickets |
 |---|---|---|
 | Sprint 1 (prep week) | Working harness and the place/view feature, built only by the agent | ORD-2 to ORD-6, ORD-11 to ORD-15 |
-| Sprint 2 (demo) | Cancel orders built live, measured against a vanilla run | ORD-21 to ORD-24 |
+| Sprint 2 (demo) | Cancel orders built live, measured against a vanilla run | ORD-21 to ORD-24, ORD-31, ORD-32 |
 
 ---
 
@@ -148,7 +148,7 @@ Run the **concept tour** in `docs/demo/RUNBOOK.md`: one check per concept.
   4. Stop hook script run 3× against a failing `StopHookProbeTest`: attempts 1 and 2 exit 2 with the failure, attempt 3 "Build still failing after 3 attempts" exit 0, counter reset. Real wiring checked by ending a turn with the probe in place (see next comment).
   5. `git push origin HEAD` denied by permissions.
   6. Skills show namespaced: `/mattpocock-skills:implement-spec`, `/mattpocock-skills:implement` (README already says both forms work).
-  7. Vanilla copy (built in a temp dir, not `../order-demo-vanilla`): no harness files, plugin disabled; `claude -p` there lists no Matt skills.
+  7. Vanilla copy (built in a temp dir, not `../order-demo-vanilla`, which stays for ORD-31): no harness files, plugin disabled; `claude -p` there lists no Matt skills.
   Extra: LSP (jdtls) answers `workspaceSymbol OrderDemoApplication`. context7 docs name the module `spring-boot-webmvc-test` but not the package; package `org.springframework.boot.webmvc.test.autoconfigure` confirmed from the jar. CI (#13) not verifiable: ORD-5 skipped, no remote.
   Findings, most severe first: (1) vanilla copy still contains `scripts/` (`install-matt-pocock-skills.sh`, `score-run.sh`, `setup-harness.sh`), which tips off the vanilla agent: ORD-7. (2) Stop hook only checks uncommitted `src`/`pom.xml` changes, so a failing build already committed passes silently: acceptable for the demo, noted only.
 - 2026-10-24 Claude: real Stop hook wiring confirmed: ending a turn with `StopHookProbeTest` failing returned "./mvnw verify failed (attempt 1 of 3)" with the assertion; probe deleted, build green. Also gitignored jdtls workspace files (`.classpath`, `.project`, `.settings/`) that the LSP plugin creates in the repo root.
@@ -481,5 +481,32 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 
 **Acceptance criteria**
 - [ ] `/retro` run in the implementation session; findings in Comments
-- [ ] First-pass acceptance recorded for ORD-22 and ORD-23
+- [ ] First-pass acceptance recorded for ORD-22 and ORD-23 and compared with the vanilla run (ORD-32)
 
+---
+
+## ORD-30 · Epic: Demo enablement
+
+Status: Backlog · Owner: Mauricio
+
+Tooling that measures the harness run against a vanilla run. Not product work, tracked here so it is visible and estimated.
+
+### ORD-31 · Task: Create the vanilla baseline
+
+- **Status:** Backlog
+- **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** ORD-14
+
+**Acceptance criteria**
+- [ ] `scripts/make-vanilla.sh` created `../order-demo-vanilla` from `main` after ORD-12 to ORD-14 merged
+- [ ] No harness files, no architecture tests, plugin disabled; `./mvnw verify` green there
+
+### ORD-32 · Task: Rehearse both runs and fill the scorecard
+
+- **Status:** Backlog
+- **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 3 · **Sprint:** 2
+- **Blocked by:** ORD-21, ORD-31
+
+**Acceptance criteria**
+- [ ] 3 rehearsals each of Run A (vanilla prompt) and Run B (ORD-22 and ORD-23 via `/implement`)
+- [ ] `scripts/score-run.sh` results, time and `/cost` recorded in `docs/demo/RUNBOOK.md` scorecard
