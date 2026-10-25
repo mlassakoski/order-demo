@@ -42,7 +42,7 @@ Tracker: `jira/ORD-board.md` simulates Jira for this demo (specs in `docs/specs/
 
 ## Conventions
 - Branches: `feature/ORD-NN-slug`, `fix/ORD-NN-slug`.
-- Commits: [Conventional Commits](https://www.conventionalcommits.org/) with the ticket key: `feat(ORD-22): cancel an order`, `fix(ORD-31): ...`.
+- Commits: [Conventional Commits](https://www.conventionalcommits.org/) with the ticket key: `feat(ORD-22): cancel an order`, `fix(ORD-23): ...`.
 - Formatting: Palantir Java Format via Spotless, applied on every build (`./mvnw spotless:apply`).
 
 ## Changing a guardrail

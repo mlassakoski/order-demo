@@ -28,7 +28,7 @@ Starting a ticket (agent or human): `git switch -c feature/ORD-NN-slug` → `/cl
 | Sprint | Goal | Tickets |
 |---|---|---|
 | Sprint 1 (prep week) | Working harness and the place/view feature, built only by the agent | ORD-2 to ORD-6, ORD-11 to ORD-15 |
-| Sprint 2 (demo) | Cancel orders built live, measured against a vanilla run | ORD-21 to ORD-24, ORD-31 to ORD-34 |
+| Sprint 2 (demo) | Cancel orders built live, measured against a vanilla run | ORD-21 to ORD-24, ORD-31, ORD-32 |
 
 ---
 
@@ -493,7 +493,7 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 
 Status: Backlog · Owner: Mauricio
 
-Everything needed to present the comparison reliably. Not product work, tracked here so it is visible and estimated.
+Tooling that measures the harness run against a vanilla run. Not product work, tracked here so it is visible and estimated.
 
 ### ORD-31 · Task: Create the vanilla baseline
 
@@ -514,23 +514,3 @@ Everything needed to present the comparison reliably. Not product work, tracked 
 **Acceptance criteria**
 - [ ] 3 rehearsals each of Run A (vanilla prompt) and Run B (ORD-22 and ORD-23 via `/implement`)
 - [ ] `scripts/score-run.sh` results, time and `/cost` recorded in `docs/demo/RUNBOOK.md` scorecard
-- [ ] Slides 18 and 19 updated with the real numbers
-
-### ORD-33 · Task: Record backup videos
-
-- **Status:** Backlog
-- **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
-- **Blocked by:** ORD-32
-
-**Acceptance criteria**
-- [ ] Recordings: grilling + spec + tickets (ORD-21), Run A, Run B implementation, both scorings
-
-### ORD-34 · Task: Dry run with a colleague
-
-- **Status:** Backlog
-- **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
-- **Blocked by:** ORD-33
-
-**Acceptance criteria**
-- [ ] Full talk in under 45 minutes, demo included
-- [ ] Feedback captured and applied to `presentation-draft.md`
