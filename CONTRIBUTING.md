@@ -10,7 +10,7 @@ How humans and AI agents work in this repo. Agents read `AGENTS.md`; this file i
 | Agent | Exploration, spec and ticket drafts, code and tests, self-review (`/code-review`), commits on a feature branch |
 | Tech lead | Architecture rules, `CODING_STANDARDS.md`, agent config (CODEOWNERS) |
 
-Agents never push, merge or change guardrails (`.claude/settings.json` denies `git push`; a hook blocks edits to architecture rules and agent config; CODEOWNERS requires a tech lead).
+Agents push feature branches and open PRs; they never merge, push to `main`, force-push or change guardrails (`.claude/settings.json` denies those; branch protection on `main` requires a PR with code-owner approval; a hook blocks edits to architecture rules and agent config; CODEOWNERS requires a tech lead).
 
 ## Workflow
 1. `/grill-with-docs` with the domain expert until every decision is made (glossary and ADRs update inline).

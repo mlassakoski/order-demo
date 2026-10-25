@@ -8,7 +8,7 @@ Built AI-first with Matt Pocock's skills (plugin `mattpocock-skills`): humans ma
 - One test: `./mvnw test -Dtest=ClassName#methodName`
 - Run: `./mvnw spring-boot:run` (port 8080)
 
-Work on `feature/ORD-NN-slug`, commit as `feat(ORD-NN): summary`; humans push and merge.
+Work on `feature/ORD-NN-slug`, commit as `feat(ORD-NN): summary`, push the branch and open a PR (`gh pr create`); humans review and merge on GitHub.
 
 ## Pointers
 - **Before writing or reviewing code**: `CODING_STANDARDS.md` (cross-cutting) and the layer rules in `.claude/rules/` (Claude Code loads them automatically for the files you touch; other agents read the matching file).

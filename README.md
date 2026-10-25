@@ -50,7 +50,7 @@ Plugin skills may show namespaced in Claude Code (`/mattpocock-skills:grill-with
 | `.claude/hooks/verify-on-stop.sh` | Sensor | Stop hook: `./mvnw verify` when code changed; failures go back to the agent. |
 | `.claude/hooks/protect-team-owned-files.sh` | Sensor | Blocks agent edits to architecture rules and harness config (settings, hooks, rules, agents, skills, MCP). |
 | `.claude/agents/security-reviewer.md` | Sensor | **Subagent**: read-only security review of the diff in a fresh context. |
-| `.claude/settings.json` | Sensor | **Permissions** (no push, no secrets), hooks, enabled plugins and MCP servers. |
+| `.claude/settings.json` | Sensor | **Permissions** (feature-branch push and PRs only, no merge, no secrets), hooks, enabled plugins and MCP servers. |
 | `pom.xml` gates | Sensor | Enforcer (JDK/Maven), Spotless format, Surefire `*Test` + Failsafe `*IT`, JaCoCo ≥ 80% on domain/application. |
 | `.github/workflows/ci.yml` | Sensor | Required check: `spotless:check` + `./mvnw verify`, reports on failure. |
 | `.github/dependabot.yml` | Sensor | Weekly dependency and Actions updates. |

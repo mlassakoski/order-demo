@@ -171,6 +171,20 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 - 2026-10-24 Claude: excludes `scripts/`, `.vscode/` and jdtls files (`.classpath`, `.project`, `.settings/`); strips the `.claude/.verify-*` and `score.log` entries from the copy's `.gitignore`. Checked by building a fresh copy: grep for `pocock|harness|score|ORD-NN|first-pass|claude` over its tracked files finds nothing (except `.claude/settings.json`, which must name the plugin to disable it); `./mvnw verify` green there. Left as is: the ArchUnit dependency in `pom.xml` (unused once the architecture tests are removed; a weak hint, removing it changes the build).
 - 2026-10-24 Claude: merged to `main` (PR #7 history). Done.
 
+### ORD-8 · Task: Agents push feature branches and open PRs
+
+- **Status:** In Progress
+- **Assignee:** Claude (agent) · **Reviewer:** Mauricio · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** ORD-5
+
+**Description**
+Mauricio's decision (2026-10-24): agents push their feature branch and open the PR; humans review and approve on GitHub. Safe now that `main` is protected (ORD-5: PR, code-owner approval, `verify`, no force push). Agents still never merge, push to `main` or force-push.
+
+**Acceptance criteria**
+- [ ] `.claude/settings.json`: allow pushing `feature/*` and `gh pr create|view|edit`; deny force-push, pushes to `main` and `gh pr merge` (protected file: patch applied by Mauricio)
+- [x] `AGENTS.md`, `CONTRIBUTING.md`, `README.md`, `docs/agents/issue-tracker.md` say the same
+- [ ] Checked: agent pushes a feature branch and opens a PR; `git push origin main` and `gh pr merge` are denied
+
 ---
 
 ## ORD-10 · Epic: Place and view orders
