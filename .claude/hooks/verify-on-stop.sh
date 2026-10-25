@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
-# Stop hook (feedback sensor).
-# When the agent tries to finish and code changed, run the full build (tests + ArchUnit).
+# Stop and SubagentStop hook (feedback sensor).
+# When the agent tries to finish and code changed, run the full build (tests + ArchUnit)
+# in the agent's own working directory (a subagent's worktree, or the project).
 # Exit code 2 = do not stop; stderr goes back to the agent so it fixes the failures.
 # Gives up after 3 failed attempts so a human can look.
 
-cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
-cat > /dev/null # hook input not needed
+input="$(cat)"
+event="$(printf '%s' "$input" | jq -r '.hook_event_name // empty' 2> /dev/null)"
+dir="$(printf '%s' "$input" | jq -r '.cwd // empty' 2> /dev/null)"
+project="${CLAUDE_PROJECT_DIR:-.}"
+dir="$(git -C "${dir:-$project}" rev-parse --show-toplevel 2> /dev/null || echo "${dir:-$project}")"
+
+# A subagent in the project directory itself is covered by the main session's Stop hook.
+if [ "$event" = "SubagentStop" ] && [ "$dir" = "$(cd "$project" && pwd -P)" ]; then
+  exit 0
+fi
+
+cd "$dir" || exit 0
 
 # Only run when source or build files changed (skips planning / Q&A turns).
 if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
   if [ -z "$(git status --porcelain -- src pom.xml)" ]; then
+    rm -f .claude/.verify-attempts # nothing to check: start the next failure at attempt 1
     exit 0
   fi
 fi
