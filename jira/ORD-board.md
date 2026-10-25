@@ -494,13 +494,13 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 
 ### ORD-24 · Task: Retro: cancel orders
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Mauricio (with Claude) · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-22, ORD-23
 
 **Acceptance criteria**
 - [x] `/retro` run in the implementation session; findings in Comments
-- [ ] First-pass acceptance recorded for ORD-22 and ORD-23 and compared with the vanilla run (ORD-32)
+- [x] First-pass acceptance recorded for ORD-22 and ORD-23 and compared with the vanilla run (ORD-32)
 
 **Comments**
 - 2026-10-24 Claude: retro on the ORD-21 → ORD-23 session. First pass: ORD-22 and ORD-23 needed one review-fix round (7150fb5: two missing IT paths, over-general base exception, wrong null-id wording) → `ai-small-fixes` on PR #12 (label is Mauricio's to apply; agents can't edit PR labels). Findings, most severe first:
@@ -511,10 +511,11 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
   5. **Closing tickets costs a PR each (process).** Moving tickets to Done after a merge needs a board-only PR (PR #9, this one). Proposal: fold Done transitions into the next work PR unless the board is needed sooner.
   6. **Hardening carried over (code).** `problemProperties()` copies keys without checking reserved ProblemDetail fields (from the PR #12 security review). Proposal: narrow to `Map<String, String>` and reject `type|title|status|detail|instance`.
   Left: Mauricio accepts findings (follow-ups as Draft Tasks); criterion 2 needs the vanilla run from ORD-32.
+- 2026-10-25 Claude: compared with the agent rehearsal of Run A (RUNBOOK scorecard): B `ai-small-fixes` and judge PASS; A fails the judge (1 test-name violation), no domain-rule hierarchy, no Shipped case end to end. The PR #12 label is still for Mauricio. In Review.
 
 ### ORD-25 · Task: Vanilla copy checks itself for harness hints
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -527,10 +528,11 @@ From the ORD-24 retro (finding 1): `make-vanilla.sh` filters known harness lines
 
 **Comments**
 - 2026-10-24 Claude: check added before the copy's first commit. Clean run exits 0; a planted `hint.txt` with "harness" exits 1 naming the file. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-26 · Task: Acceptance test names every acceptance criterion
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -542,10 +544,11 @@ From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the ha
 
 **Comments**
 - 2026-10-24 Claude: docs updated as in the criteria. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-27 · Task: Check git push arguments with a hook
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected; Claude drafts the patch) · **Labels:** human · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -561,10 +564,11 @@ From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leak
 - 2026-10-24 Claude: patch drafted (new `.claude/hooks/guard-git-push.sh` + PreToolUse `Bash` entry; deny rules kept). Simulated inputs: allowed form on `feature/*` and `chore/*` → pass; `--mirror`, `-f`, `HEAD:refs/heads/main`, `git -C . push`, compound commands, allowed form on `main` → blocked; `git log | grep push` and a commit message saying "push" → pass. Fails closed without `jq`. Waiting for Mauricio to apply.
 - 2026-10-25 Claude: patch applied by Mauricio, committed 2ddcaa1. Live: `git -C . push --dry-run origin HEAD` blocked by the hook; the allowed form from `chore/ORD-24-retro-cancel-orders` went through and updated PR #13. Known false positive, kept on purpose (fail closed): any command whose text contains a push, such as a commit message passed with `-m`, is blocked; write such messages with `git commit -F <file>`. Stripping quoted text would let `bash -c "..."` through. In Review.
 - 2026-10-25 Claude: automated security review of the pushed hook (1 High, 2 Medium): the check can be evaded on purpose (`$g push`, `send-pack`, git aliases) and does not pin the remote URL or destination ref (an agent could first edit `.git/config`). Accepted risk, not changed: the hook guards against mistakes; deliberate evasion is covered by the `main` ruleset (no bypass actors), the auto-mode classifier, and `git config` not being allowed. Hardening options if wanted: block any `push` token unless exact; pin `git remote get-url --push origin`; or let the hook run the push itself with explicit refspec and `-c` overrides.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-28 · Task: Orchestration notes: worktree base and Done transitions
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -577,10 +581,11 @@ From the ORD-24 retro (findings 4 and 5): agent worktrees start from `origin/mai
 
 **Comments**
 - 2026-10-24 Claude: docs updated as in the criteria. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-29 · Task: Harden problem properties of rule violations
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -595,6 +600,7 @@ From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandl
 
 **Comments**
 - 2026-10-24 Claude: test-first at the `@WebMvcTest` seam: a rule violation whose properties try to overwrite `type`/`title`/`status`/`detail`/`instance` keeps the standard fields and keeps its own extra key. Red on the signature (`Map<String, String>`), then green. Cancel 409 tests unchanged and green; `./mvnw clean verify` green. Note: jdtls had compiled a broken stub into `target/` that made Maven run a half-compiled test; `clean` gave the real red. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ---
 
@@ -620,10 +626,13 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 ### ORD-32 · Task: Rehearse both runs and fill the scorecard
 
-- **Status:** Backlog
+- **Status:** In Progress
 - **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21, ORD-31
 
 **Acceptance criteria**
 - [ ] 3 rehearsals each of Run A (vanilla prompt) and Run B (ORD-22 and ORD-23 via `/implement`)
 - [ ] `scripts/score-run.sh` results, time and `/cost` recorded in `docs/demo/RUNBOOK.md` scorecard
+
+**Comments**
+- 2026-10-25 Claude: agent rehearsal done and scored (RUNBOOK scorecard): A 229 s / $1.21 / judge FAIL (1 violation); B judge PASS, one review-fix round. Found: `make-vanilla.sh` from today's `main` already contains cancel, so rehearsals must start from the `c199963` baseline (steps added to the RUNBOOK). Left for Mauricio: 3 human rehearsals of each run with `/cost`, and slides 18 and 19.
