@@ -15,3 +15,6 @@ score.log
 .classpath
 .project
 .settings/
+
+# Local JVM flags (JDK-specific)
+.mvn/jvm.config

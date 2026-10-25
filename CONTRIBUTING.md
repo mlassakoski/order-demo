@@ -30,7 +30,6 @@ Tracker: `jira/ORD-board.md` simulates Jira for this demo (specs in `docs/specs/
 ## Definition of Done (PR)
 - CI green: `spotless:check` and `./mvnw verify` (unit + integration tests, ArchUnit, coverage ≥ 80% on domain and application).
 - `/code-review` Standards and Spec axes: no open findings. `security-reviewer` subagent: PASS.
-- CI agent review (`claude` workflow) addressed.
 - Every acceptance criterion of the ticket has a test.
 - First-pass acceptance box ticked in the PR template.
 - Approved by a code owner. Squash-merged.
