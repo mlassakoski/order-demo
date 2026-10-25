@@ -85,7 +85,7 @@ Agent rehearsal, 2026-10-25 (A: headless `claude -p` with the demo prompt in a c
 | Time / tokens (`/cost`) | 229 s, 49 turns, $1.21 | ~14 min of agent time (2 implementers + 1 fixer + 4 reviewers), plus refinement |
 | **Accepted on first pass?** | No: fails the judge | `ai-small-fixes`: one review-fix round, green throughout |
 
-Notes: A was strong because the ORD-10 code gave it good patterns to copy; the harness made the difference on conventions, the error model and the acceptance tests (Shipped case end to end, written first). Human rehearsals: add columns or replace these numbers.
+Notes: A was strong because the ORD-10 code gave it good patterns to copy; the harness made the difference on conventions, the error model and the acceptance tests (Shipped case end to end, written first). Human rehearsals were skipped (decision 2026-10-25, ORD-32): these agent-rehearsal numbers are the scorecard for the talk.
 
 ## Talking points
 - Each harness file: **guide** or **sensor**.
