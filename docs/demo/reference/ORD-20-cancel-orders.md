@@ -53,5 +53,5 @@ None.
 
 | Key | Story | Points | Blocked by | Technical tasks |
 |---|---|---|---|---|
-| ORD-22 | Cancel a Pending or Paid order | 3 | ORD-21 | T1 `Order.cancel()` → T2 use case → T3 `POST /orders/{id}/cancel` → T4 IT → T5 close |
-| ORD-23 | Refuse to cancel Shipped or Cancelled orders | 2 | ORD-22 | T1 rule + exception → T2 409 mapping → T3 IT → T4 close |
+| ORD-22 | Cancel a Pending or Paid order | 3 | ORD-21 | T1 IT → T2 `Order.cancel()` → T3 use case → T4 `POST /orders/{id}/cancel` → T5 close |
+| ORD-23 | Refuse to cancel Shipped or Cancelled orders | 2 | ORD-22 | T1 IT → T2 rule + exception → T3 409 mapping → T4 close |

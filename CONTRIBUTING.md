@@ -10,7 +10,7 @@ How humans and AI agents work in this repo. Agents read `AGENTS.md`; this file i
 | Agent | Exploration, spec and ticket drafts, code and tests, self-review (`/code-review`), commits on a feature branch |
 | Tech lead | Architecture rules, `CODING_STANDARDS.md`, agent config (CODEOWNERS) |
 
-Agents never push, merge or change guardrails (`.claude/settings.json` denies `git push`; a hook blocks edits to architecture rules and agent config; CODEOWNERS requires a tech lead).
+Agents push feature branches and open PRs; they never merge, push to `main`, force-push or change guardrails (`.claude/settings.json` denies those; branch protection on `main` requires a PR with code-owner approval; a hook blocks edits to architecture rules and agent config; CODEOWNERS requires a tech lead).
 
 ## Workflow
 1. `/grill-with-docs` with the domain expert until every decision is made (glossary and ADRs update inline).
@@ -24,7 +24,7 @@ Tracker: `jira/ORD-board.md` simulates Jira for this demo (specs in `docs/specs/
 ## Definition of Ready (ticket)
 - Status `ready-for-agent`, written in `GLOSSARY.md` terms.
 - Describes end-to-end behaviour (a vertical slice) with Given/When/Then acceptance criteria.
-- Technical tasks listed: one red→green cycle per task at a named seam, approved by an engineer.
+- Technical tasks listed: one red→green cycle per task at a named seam, approved by an engineer. T1 is the story's acceptance test (`*IT`), written first and red until the whole slice is wired; layer tasks follow, outside-in.
 - Blocking edges listed; all blockers done.
 
 ## Definition of Done (PR)

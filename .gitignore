@@ -18,3 +18,6 @@ score.log
 
 # Local JVM flags (JDK-specific)
 .mvn/jvm.config
+
+# Claude Code subagent worktrees
+.claude/worktrees/

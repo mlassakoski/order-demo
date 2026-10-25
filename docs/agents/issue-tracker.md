@@ -11,7 +11,8 @@ Issues live in `jira/ORD-board.md`, one `### ORD-NN` section per issue, grouped 
 - **Blocking**: the `Blocked by` field. A ticket is unblocked when every ticket it lists is `Done`.
 - **Comment**: append to the ticket's `Comments` list as `- YYYY-MM-DD <author>: <text>`.
 - **Technical tasks**: tick `T1`, `T2`... as they go green; propose changes in Comments, never silently skip or add tasks.
-- **Close**: set `Status: In Review` when the PR is open; a human sets `Done` after merge. Agents never push or merge.
+- **Merging an implementer's work**: the `SubagentStop` hook builds in the subagent's worktree but cannot stop a background subagent from finishing. Before merging, check the worktree: no `.claude/.verify-attempts` file means its last stop was green; then run `./mvnw verify` there anyway. A red worktree goes back to its implementer.
+- **Status at every transition**: the agent updates `Status` in the same piece of work that changes it: `In Progress` when starting, `In Review` when committed for review, `Done` once the work is on `main` (or, for work with no PR, when every acceptance criterion is met). Partly met criteria keep the status, with a comment naming what is left. At the start of a run, sweep for tickets whose work is already on `main` and close them. End every report with the next ticket on the frontier. Agents push their feature branch and open the PR; humans review and merge on GitHub.
 
 ## When a skill says "publish to the issue tracker"
 

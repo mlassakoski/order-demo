@@ -15,10 +15,27 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git switch *)",
-      "Bash(git checkout -b *)"
+      "Bash(git checkout -b *)",
+      "Bash(git push -u origin HEAD)",
+      "Bash(git push origin HEAD)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)"
     ],
     "deny": [
-      "Bash(git push*)",
+      "Bash(git push*--force*)",
+      "Bash(git push*-f*)",
+      "Bash(git push*--mirror*)",
+      "Bash(git push*--all*)",
+      "Bash(git push*--delete*)",
+      "Bash(git push*-d *)",
+      "Bash(git push*--prune*)",
+      "Bash(git push*+*)",
+      "Bash(git push*:*)",
+      "Bash(git push*main*)",
+      "Bash(git push*master*)",
+      "Bash(gh pr edit*--base*)",
+      "Bash(gh pr edit*label*)",
+      "Bash(gh pr merge*)",
       "Bash(git reset --hard*)",
       "Bash(git clean*)",
       "Read(./.env)",
@@ -42,6 +59,17 @@
       }
     ],
     "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/verify-on-stop.sh",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
       {
         "hooks": [
           {
