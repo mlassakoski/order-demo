@@ -512,6 +512,73 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
   6. **Hardening carried over (code).** `problemProperties()` copies keys without checking reserved ProblemDetail fields (from the PR #12 security review). Proposal: narrow to `Map<String, String>` and reject `type|title|status|detail|instance`.
   Left: Mauricio accepts findings (follow-ups as Draft Tasks); criterion 2 needs the vanilla run from ORD-32.
 
+### ORD-25 · Task: Vanilla copy checks itself for harness hints
+
+- **Status:** In Progress
+- **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 1): `make-vanilla.sh` filters known harness lines, so new ones leak (ORD-17's `.claude/worktrees/`). The script should prove its output is clean instead.
+
+**Acceptance criteria**
+- [ ] The script ends by searching the copy (except `.git` and `.claude/settings.json`) for harness hints and exits non-zero, naming the files, on a match
+- [ ] Checked: a clean run passes; a planted hint fails
+
+### ORD-26 · Task: Acceptance test names every acceptance criterion
+
+- **Status:** Ready for Agent
+- **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the happy path" only, and review found the Paid path and cancel-twice untested end to end.
+
+**Acceptance criteria**
+- [ ] Board conventions and `CONTRIBUTING.md` Definition of Ready: T1's acceptance IT lists every Given/When/Then criterion of the story it covers
+
+### ORD-27 · Task: Check git push arguments with a hook
+
+- **Status:** Ready for Human
+- **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected; Claude drafts the patch) · **Labels:** human · **Points:** 2 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leaked three times (ORD-8). A PreToolUse hook that parses the command is a stronger fence than more patterns.
+
+**Acceptance criteria**
+- [ ] PreToolUse Bash hook: any command containing `git push` passes only if it is exactly `git push [-u] origin HEAD` and the current branch is `feature/*` or `chore/*`; everything else is blocked (fail closed)
+- [ ] Existing deny rules kept as a second layer
+- [ ] Checked: allowed form passes; `--mirror`, refspecs, compound commands, pushing from `main` are blocked
+
+### ORD-28 · Task: Orchestration notes: worktree base and Done transitions
+
+- **Status:** Ready for Agent
+- **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (findings 4 and 5): agent worktrees start from `origin/main`, so implementers must reset onto the epic branch; and every Done transition after a merge cost a board-only PR.
+
+**Acceptance criteria**
+- [ ] `docs/agents/issue-tracker.md`: implementer prompts confirm the worktree base and reset onto the integration branch
+- [ ] `docs/agents/issue-tracker.md`: Done transitions after a merge ride with the next work PR; a board-only PR only when the board is needed sooner
+
+### ORD-29 · Task: Harden problem properties of rule violations
+
+- **Status:** Ready for Agent
+- **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandler` copies `problemProperties()` without checking keys, so a future rule violation could overwrite standard ProblemDetail fields or expose a domain object.
+
+**Acceptance criteria**
+- [ ] `problemProperties()` returns `Map<String, String>`
+- [ ] Reserved keys (`type`, `title`, `status`, `detail`, `instance`) are never copied onto the problem detail; tested
+- [ ] 409 contract for cancel refusals unchanged
+- 2026-10-24 Claude: Mauricio accepted all 6 findings → ORD-25 to ORD-29 (findings 4 and 5 merged into ORD-28). Left: label `ai-small-fixes` on PR #12 (Mauricio) and criterion 2 after ORD-32.
+
 ---
 
 ## ORD-30 · Epic: Demo enablement
