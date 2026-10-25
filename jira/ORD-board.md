@@ -60,7 +60,7 @@ Create the project skeleton with no feature code: Spring Boot 4.1 / Java 21 / Ma
 
 ### ORD-3 · Task: Install the harness and get the first green build
 
-- **Status:** Ready for Human
+- **Status:** Done
 - **Assignee:** Mauricio · **Labels:** human · **Points:** 2 · **Sprint:** 1
 - **Blocked by:** ORD-2
 
@@ -69,7 +69,7 @@ Install the harness on the dev machine and prove the skeleton builds. If the bui
 
 **Acceptance criteria**
 - [x] `bash scripts/setup-harness.sh` moved `harness-setup/` into `.claude/` and `.github/`
-- [ ] `git init`, first commit `chore(ORD-3): skeleton and AI harness` on `main`
+- [x] `git init`, first commit `chore(ORD-3): skeleton and AI harness` on `main`
 - [x] `./mvnw verify` green on JDK 21 (enforcer, spotless, ArchUnit, `ApplicationHealthIT`, JaCoCo)
 - [x] `./mvnw spotless:check` green after the first build
 
@@ -78,10 +78,11 @@ Install the harness on the dev machine and prove the skeleton builds. If the bui
 
 **Comments**
 - 2026-10-24 Claude: `./mvnw verify` and `spotless:check` green on JDK 21.0.1 and 25.0.2. Fixes: Palantir Java Format pinned to 2.102.0 and sources reformatted (no rule changed); `.mvn/jvm.config` flag `--sun-misc-unsafe-memory-access=allow` crashed Maven on JDK 21 ("Unrecognized option"), now prefixed with `-XX:+IgnoreUnrecognizedVMOptions` so 21 ignores it and 25 keeps the warning silenced. Open: the repo's first commit is `Skeleton + AI harness` on `master`, not `chore(ORD-3): ...` on `main`; renaming the branch (and rewording that commit, if wanted) is left to Mauricio.
+- 2026-10-24 Claude: `main` now exists on GitHub (renamed from `master`; first commit kept its original message `Skeleton + AI harness`). All criteria met; Done.
 
 ### ORD-4 · Task: Install Matt Pocock's skills and configure them for this repo
 
-- **Status:** Ready for Human
+- **Status:** Done
 - **Assignee:** Mauricio · **Labels:** human, ai-agent · **Points:** 1 · **Sprint:** 1
 - **Blocked by:** ORD-3
 
@@ -96,10 +97,11 @@ Install the `mattpocock-skills` plugin the way Matt recommends for Claude Code a
 
 **Comments**
 - 2026-10-24 Claude: plugins `mattpocock-skills` 1.3.1 and `jdtls-lsp` were already installed; `brew install jdtls` added jdtls 1.63.0. All listed skills ship in the plugin (`grill-with-docs`, `to-spec`, `to-tickets`, `retro` and `setup-matt-pocock-skills` are user-invoked only, so agents don't see them in their own skill list). `context7` tools are live in the session. `/setup-matt-pocock-skills` can't be run by the agent (`disable-model-invocation`), so its output was written by hand from the skill's templates with the answers above: `docs/agents/issue-tracker.md` (from the board paragraph, plus blocking/close rules), `triage-labels.md` (defaults), `domain.md` (single-context), `## Agent skills` block in `CLAUDE.md`. `needs-info` and `wontfix` have no board status yet. Branch `feature/ORD-4-configure-agent-skills`.
+- 2026-10-24 Claude: merged to `main` (PR #7 history). Done.
 
 ### ORD-5 · Task: Create the GitHub repository and protect main
 
-- **Status:** Ready for Human
+- **Status:** In Progress
 - **Assignee:** Mauricio · **Labels:** human · **Points:** 2 · **Sprint:** 1
 - **Blocked by:** ORD-3
 
@@ -109,13 +111,16 @@ Agents never push or change repository settings, so this is human work.
 **Acceptance criteria**
 - [ ] Repo created, `main` pushed, CI run green
 - [ ] Branch protection on `main`: PR required, 1 code-owner approval, required check `ci / verify`, linear history, no force push
-- [ ] `@your-org/...` handles in `.github/CODEOWNERS` replaced with real teams
+- [x] `@your-org/...` handles in `.github/CODEOWNERS` replaced with real teams
 - [ ] Dependabot enabled
 - ~~Repository secret `ANTHROPIC_API_KEY` added, so the `claude` workflow reviews PRs~~ Dropped 2026-10-25 (Mauricio): no AI review in CI, `claude.yml` removed
 
+**Comments**
+- 2026-10-24 Claude: repo `mlassakoski/order-demo` exists and `main` is pushed (PR #7 merged); CODEOWNERS uses `@mlassakoski`. Not verifiable by the agent: CI run green, branch protection, Dependabot, `ANTHROPIC_API_KEY` secret. Mauricio: tick those and set Done.
+
 ### ORD-6 · Spike: Verify the harness behaves as designed
 
-- **Status:** Ready for Human
+- **Status:** Done
 - **Assignee:** Mauricio (pairing with Claude) · **Labels:** human · **Points:** 2 (timebox 2h) · **Sprint:** 1
 - **Blocked by:** ORD-4
 
@@ -145,10 +150,11 @@ Run the **concept tour** in `docs/demo/RUNBOOK.md`: one check per concept.
   Extra: LSP (jdtls) answers `workspaceSymbol OrderDemoApplication`. context7 docs name the module `spring-boot-webmvc-test` but not the package; package `org.springframework.boot.webmvc.test.autoconfigure` confirmed from the jar. CI (#13) not verifiable: ORD-5 skipped, no remote.
   Findings, most severe first: (1) vanilla copy still contains `scripts/` (`install-matt-pocock-skills.sh`, `score-run.sh`, `setup-harness.sh`), which tips off the vanilla agent: ORD-7. (2) Stop hook only checks uncommitted `src`/`pom.xml` changes, so a failing build already committed passes silently: acceptable for the demo, noted only.
 - 2026-10-24 Claude: real Stop hook wiring confirmed: ending a turn with `StopHookProbeTest` failing returned "./mvnw verify failed (attempt 1 of 3)" with the assertion; probe deleted, build green. Also gitignored jdtls workspace files (`.classpath`, `.project`, `.settings/`) that the LSP plugin creates in the repo root.
+- 2026-10-24 Claude: merged to `main` (PR #7 history). Done; finding (1) became ORD-7.
 
 ### ORD-7 · Task: Keep harness scripts out of the vanilla copy
 
-- **Status:** Draft
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -161,6 +167,7 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 
 **Comments**
 - 2026-10-24 Claude: excludes `scripts/`, `.vscode/` and jdtls files (`.classpath`, `.project`, `.settings/`); strips the `.claude/.verify-*` and `score.log` entries from the copy's `.gitignore`. Checked by building a fresh copy: grep for `pocock|harness|score|ORD-NN|first-pass|claude` over its tracked files finds nothing (except `.claude/settings.json`, which must name the plugin to disable it); `./mvnw verify` green there. Left as is: the ArchUnit dependency in `pom.xml` (unused once the architecture tests are removed; a weak hint, removing it changes the build).
+- 2026-10-24 Claude: merged to `main` (PR #7 history). Done.
 
 ---
 
@@ -291,7 +298,7 @@ Note: if ORD-13 and ORD-14 run in parallel, both touch `GlobalExceptionHandler`;
 
 ### ORD-15 · Task: Retro: place and view orders
 
-- **Status:** Backlog
+- **Status:** In Progress
 - **Assignee:** Mauricio (with Claude) · **Labels:** human · **Points:** 1 · **Sprint:** 1
 - **Blocked by:** ORD-12, ORD-13, ORD-14
 
@@ -302,6 +309,9 @@ Run `/retro` on the epic's sessions. Mechanical mistakes become checks (ArchUnit
 - [ ] First-pass acceptance recorded for ORD-12, ORD-13, ORD-14 (labels on the PRs)
 - [ ] Retro findings listed in Comments, most severe first
 - [ ] Follow-up Tasks created for accepted findings
+
+**Comments**
+- 2026-10-24 Claude: `/retro` run on the ORD-3 → ORD-10 session; 9 findings proposed (unbounded request input → ArchUnit rule; `requireNonNull` in domain → ArchUnit rule; Stop hook skips subagents → `SubagentStop` hook; ITs never red → acceptance IT first; rtk breaks git in worktrees; jdtls diagnostics noise; `/code-review main` pointer (fixed by `main`); one board writer in parallel runs; `tests.md` vs "nothing stored"). Waiting for Mauricio to accept findings; then follow-up Tasks. First-pass labels on PR #7: ORD-12/13/14 all `ai-small-fixes` (one review-fix round).
 
 ---
 
