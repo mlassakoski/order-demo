@@ -101,7 +101,7 @@ Install the `mattpocock-skills` plugin the way Matt recommends for Claude Code a
 
 ### ORD-5 · Task: Create the GitHub repository and protect main
 
-- **Status:** In Progress
+- **Status:** Done
 - **Assignee:** Mauricio · **Labels:** human · **Points:** 2 · **Sprint:** 1
 - **Blocked by:** ORD-3
 
@@ -110,7 +110,7 @@ Agents never push or change repository settings, so this is human work.
 
 **Acceptance criteria**
 - [x] Repo created, `main` pushed, CI run green
-- [ ] Branch protection on `main`: PR required, 1 code-owner approval, required check `ci / verify`, linear history, no force push
+- [x] Branch protection on `main`: PR required, 1 code-owner approval, required check `ci / verify`, linear history, no force push
 - [x] `@your-org/...` handles in `.github/CODEOWNERS` replaced with real teams
 - [x] Dependabot enabled
 - ~~Repository secret `ANTHROPIC_API_KEY` added, so the `claude` workflow reviews PRs~~ Dropped 2026-10-25 (Mauricio): no AI review in CI, `claude.yml` removed
@@ -118,6 +118,7 @@ Agents never push or change repository settings, so this is human work.
 **Comments**
 - 2026-10-24 Claude: repo `mlassakoski/order-demo` exists and `main` is pushed (PR #7 merged); CODEOWNERS uses `@mlassakoski`. Not verifiable by the agent: CI run green, branch protection, Dependabot, `ANTHROPIC_API_KEY` secret. Mauricio: tick those and set Done.
 - 2026-10-24 Claude: checked read-only via the GitHub API. Public repo `mlassakoski/order-demo`, default branch `main`; `ci` green on push to `main` and on PR #7; Dependabot opened PRs #1–#6. **Not met: branch protection.** `main` reports `protected: false` and no rulesets, so PRs, code-owner approval, the `ci / verify` check, linear history and force-push blocking are all unenforced. Left for Mauricio: Settings → Branches (or Rulesets) → protect `main` as in the criterion, then set Done.
+- 2026-10-24 Claude: ruleset on `main` verified via the API: pull request with 1 code-owner approval, required check `verify`, linear history, no force push (`non_fast_forward`), no deletion. Done.
 
 ### ORD-6 · Spike: Verify the harness behaves as designed
 
