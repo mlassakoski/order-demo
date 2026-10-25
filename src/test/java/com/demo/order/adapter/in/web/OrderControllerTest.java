@@ -31,6 +31,7 @@ import com.demo.order.domain.OrderStatus;
 import com.demo.order.domain.ProductId;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -324,6 +325,43 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.detail").value("Not allowed right now"))
                 .andExpect(jsonPath("$.currentState").doesNotExist())
                 .andExpect(jsonPath("$.properties").doesNotExist());
+    }
+
+    @Test
+    void should_keep_the_standard_problem_fields_when_rule_violation_properties_use_reserved_keys() throws Exception {
+        when(cancelOrder.cancel(new CancelOrderCommand(new OrderId(ORDER_ID))))
+                .thenThrow(new RuleViolationWithReservedProperties("Not allowed right now"));
+
+        mockMvc.perform(post("/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01/cancel"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.type").doesNotExist()) // default about:blank is omitted
+                .andExpect(jsonPath("$.title").value("Conflict"))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.detail").value("Not allowed right now"))
+                .andExpect(jsonPath("$.instance").value("/orders/8a1d0c5e-4b7f-4c1a-9d3e-2f6b7a8c9d01/cancel"))
+                .andExpect(jsonPath("$.reason").value("kept"))
+                .andExpect(content().string(not(containsString("overwritten"))));
+    }
+
+    /** A rule violation whose properties try to overwrite every standard problem detail field. */
+    private static final class RuleViolationWithReservedProperties extends DomainRuleViolationException {
+
+        private static final long serialVersionUID = 1L;
+
+        RuleViolationWithReservedProperties(String message) {
+            super(message);
+        }
+
+        @Override
+        public Map<String, String> problemProperties() {
+            return Map.of(
+                    "type", "overwritten",
+                    "title", "overwritten",
+                    "status", "overwritten",
+                    "detail", "overwritten",
+                    "instance", "overwritten",
+                    "reason", "kept");
+        }
     }
 
     /** A rule violation that adds no problem properties, to pin the default of the hook. */

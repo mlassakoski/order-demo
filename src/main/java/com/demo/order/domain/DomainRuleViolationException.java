@@ -14,8 +14,11 @@ public abstract class DomainRuleViolationException extends RuntimeException {
         super(message);
     }
 
-    /** Extra properties, safe to show to the caller, that describe this violation. Empty unless a rule adds some. */
-    public Map<String, Object> problemProperties() {
+    /**
+     * Extra properties, safe to show to the caller, that describe this violation. Empty unless a rule adds some.
+     * Plain strings only, so no domain object can reach the response.
+     */
+    public Map<String, String> problemProperties() {
         return Map.of();
     }
 }

@@ -545,7 +545,7 @@ From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the ha
 
 ### ORD-27 · Task: Check git push arguments with a hook
 
-- **Status:** Ready for Human
+- **Status:** In Progress
 - **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected; Claude drafts the patch) · **Labels:** human · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -575,7 +575,7 @@ From the ORD-24 retro (findings 4 and 5): agent worktrees start from `origin/mai
 
 ### ORD-29 · Task: Harden problem properties of rule violations
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -583,10 +583,13 @@ From the ORD-24 retro (findings 4 and 5): agent worktrees start from `origin/mai
 From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandler` copies `problemProperties()` without checking keys, so a future rule violation could overwrite standard ProblemDetail fields or expose a domain object.
 
 **Acceptance criteria**
-- [ ] `problemProperties()` returns `Map<String, String>`
-- [ ] Reserved keys (`type`, `title`, `status`, `detail`, `instance`) are never copied onto the problem detail; tested
-- [ ] 409 contract for cancel refusals unchanged
+- [x] `problemProperties()` returns `Map<String, String>`
+- [x] Reserved keys (`type`, `title`, `status`, `detail`, `instance`) are never copied onto the problem detail; tested
+- [x] 409 contract for cancel refusals unchanged
 - 2026-10-24 Claude: Mauricio accepted all 6 findings → ORD-25 to ORD-29 (findings 4 and 5 merged into ORD-28). Left: label `ai-small-fixes` on PR #12 (Mauricio) and criterion 2 after ORD-32.
+
+**Comments**
+- 2026-10-24 Claude: test-first at the `@WebMvcTest` seam: a rule violation whose properties try to overwrite `type`/`title`/`status`/`detail`/`instance` keeps the standard fields and keeps its own extra key. Red on the signature (`Map<String, String>`), then green. Cancel 409 tests unchanged and green; `./mvnw clean verify` green. Note: jdtls had compiled a broken stub into `target/` that made Maven run a half-compiled test; `clean` gave the real red. In Review.
 
 ---
 
