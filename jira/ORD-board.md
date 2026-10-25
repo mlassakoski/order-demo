@@ -13,7 +13,7 @@ Simulated Jira board for the demo. In a real team this lives in Jira and agents 
 | Points | Fibonacci (1, 2, 3, 5, 8). Anything above 5 gets split. |
 | Branch / commit / PR | `feature/ORD-NN-slug` · `feat(ORD-NN): summary` (Conventional Commits) · PR title = commit summary |
 | Ready / Done | Definition of Ready and Definition of Done: `CONTRIBUTING.md` |
-| Technical tasks | Each story lists its **technical tasks** (T1, T2...): the agent's implementation plan, proposed in refinement and approved by the engineer. One task = one red→green cycle at a named seam. **T1 is the acceptance test** (`*IT`): written first, red until the slice is wired, green when the last layer task lands. The agent ticks them as it goes and may propose changes in Comments; it does not silently skip or add tasks. |
+| Technical tasks | Each story lists its **technical tasks** (T1, T2...): the agent's implementation plan, proposed in refinement and approved by the engineer. One task = one red→green cycle at a named seam. **T1 is the acceptance test** (`*IT`): written first, red until the slice is wired, green when the last layer task lands. It names every Given/When/Then criterion it covers. The agent ticks them as it goes and may propose changes in Comments; it does not silently skip or add tasks. |
 
 ## How agents use this board
 
@@ -399,7 +399,7 @@ From the ORD-15 retro: `PlaceOrderIT`, `ViewOrderIT` and `RefuseInvalidOrderIT` 
 
 ## ORD-20 · Epic: Cancel orders (live demo)
 
-Status: In Review · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
+Status: Done · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
 
 Customers can cancel an order until it ships. Built live in the talk; measured against a vanilla run.
 
@@ -428,7 +428,7 @@ Decisions to expect: cancelling twice (error or success?), refunds for Paid orde
 
 ### ORD-22 · Story: Cancel a Pending or Paid order
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21
@@ -458,10 +458,11 @@ Cancelling a Pending or Paid order returns the updated order as Cancelled. Cuts 
 **Comments**
 - 2026-10-24 Claude: T1–T4 built test-first on `feature/ORD-22-cancel-order` (4d6d42a); T1 `CancelOrderIT` was red (404) until T4. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `Order.status` no longer final; GET and cancel share the malformed-id check; `FakeOrderRepository` now stores copies like the real adapter, so a missing save fails the use case test. T5 runs at epic close.
 - 2026-10-24 Claude: epic close. Reviews since c199963: Standards (no hard violations), Spec (no blockers), `security-reviewer` PASS. Fixes in 7150fb5: Paid path and cancel-twice added to the ITs; `DomainRuleViolationException` carries no state (generic `problemProperties()`, only `OrderCannotBeCancelledException` sets `currentState`); accessor `currentStatus()`; null id says "must not be null"; javadoc; vanilla script simplified. Security re-review PASS; follow-up hardening noted in the PR (reserved keys in `problemProperties()`). `./mvnw verify` green. Pushed and PR opened. In Review.
+- 2026-10-24 Claude: merged to `main` in PR #12 (c6cb2ae). Done.
 
 ### ORD-23 · Story: Refuse to cancel Shipped or Cancelled orders
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-22
@@ -489,16 +490,111 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 **Comments**
 - 2026-10-24 Claude: T1–T3 built test-first on `feature/ORD-23-refuse-cancellation` (d2881b8); T1 `RefuseCancellationIT` was red (200) until T3. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `DomainRuleViolationException` exposes an abstract `currentState()` so the 409 handler stays generic; 409 `instance` is the request path (id already validated). T4 runs at epic close.
 - 2026-10-24 Claude: epic close. Reviews since c199963: Standards (no hard violations), Spec (no blockers), `security-reviewer` PASS. Fixes in 7150fb5: Paid path and cancel-twice added to the ITs; `DomainRuleViolationException` carries no state (generic `problemProperties()`, only `OrderCannotBeCancelledException` sets `currentState`); accessor `currentStatus()`; null id says "must not be null"; javadoc; vanilla script simplified. Security re-review PASS; follow-up hardening noted in the PR (reserved keys in `problemProperties()`). `./mvnw verify` green. Pushed and PR opened. In Review.
+- 2026-10-24 Claude: merged to `main` in PR #12 (c6cb2ae). Done.
 
 ### ORD-24 · Task: Retro: cancel orders
 
-- **Status:** Backlog
+- **Status:** In Progress
 - **Assignee:** Mauricio (with Claude) · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-22, ORD-23
 
 **Acceptance criteria**
-- [ ] `/retro` run in the implementation session; findings in Comments
+- [x] `/retro` run in the implementation session; findings in Comments
 - [ ] First-pass acceptance recorded for ORD-22 and ORD-23 and compared with the vanilla run (ORD-32)
+
+**Comments**
+- 2026-10-24 Claude: retro on the ORD-21 → ORD-23 session. First pass: ORD-22 and ORD-23 needed one review-fix round (7150fb5: two missing IT paths, over-general base exception, wrong null-id wording) → `ai-small-fixes` on PR #12 (label is Mauricio's to apply; agents can't edit PR labels). Findings, most severe first:
+  1. **Vanilla copy can leak again (automated check).** ORD-17 added a `.claude/worktrees/` ignore line and `make-vanilla.sh` copied it: its filter knows only the lines that existed when it was written. Proposal: the script ends by grepping the copy for `pocock|harness|score|claude|first-pass` (except `.claude/settings.json`) and exits non-zero on a match.
+  2. **ITs cover only the first AC (ticket shape).** Both tickets said "Acceptance test (`*IT`) for the happy path"; the spec review then found the Paid path and cancel-twice untested end to end. Proposal: in `to-tickets` output and the Definition of Ready, the T1 IT names every Given/When/Then AC it covers.
+  3. **Permission rules by wildcard leak (tool economy).** Three rounds of automated security findings on `git push` patterns (ORD-8); the exact `git push origin HEAD` allow plus the `main` ruleset closed it. Proposal: none now; if push rules need to grow, use a PreToolUse hook that parses arguments instead of more wildcards.
+  4. **Worktrees start from `origin/main` (navigation).** Every implementer had to reset onto the epic branch; it worked only because the prompt said so. Proposal: keep the reset step in the implementer prompt template (`docs/agents/issue-tracker.md`, merge section).
+  5. **Closing tickets costs a PR each (process).** Moving tickets to Done after a merge needs a board-only PR (PR #9, this one). Proposal: fold Done transitions into the next work PR unless the board is needed sooner.
+  6. **Hardening carried over (code).** `problemProperties()` copies keys without checking reserved ProblemDetail fields (from the PR #12 security review). Proposal: narrow to `Map<String, String>` and reject `type|title|status|detail|instance`.
+  Left: Mauricio accepts findings (follow-ups as Draft Tasks); criterion 2 needs the vanilla run from ORD-32.
+
+### ORD-25 · Task: Vanilla copy checks itself for harness hints
+
+- **Status:** In Review
+- **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 1): `make-vanilla.sh` filters known harness lines, so new ones leak (ORD-17's `.claude/worktrees/`). The script should prove its output is clean instead.
+
+**Acceptance criteria**
+- [x] The script ends by searching the copy (except `.git` and `.claude/settings.json`) for harness hints and exits non-zero, naming the files, on a match
+- [x] Checked: a clean run passes; a planted hint fails
+
+**Comments**
+- 2026-10-24 Claude: check added before the copy's first commit. Clean run exits 0; a planted `hint.txt` with "harness" exits 1 naming the file. In Review.
+
+### ORD-26 · Task: Acceptance test names every acceptance criterion
+
+- **Status:** In Review
+- **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the happy path" only, and review found the Paid path and cancel-twice untested end to end.
+
+**Acceptance criteria**
+- [x] Board conventions and `CONTRIBUTING.md` Definition of Ready: T1's acceptance IT lists every Given/When/Then criterion of the story it covers
+
+**Comments**
+- 2026-10-24 Claude: docs updated as in the criteria. In Review.
+
+### ORD-27 · Task: Check git push arguments with a hook
+
+- **Status:** In Review
+- **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected; Claude drafts the patch) · **Labels:** human · **Points:** 2 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leaked three times (ORD-8). A PreToolUse hook that parses the command is a stronger fence than more patterns.
+
+**Acceptance criteria**
+- [x] PreToolUse Bash hook: any command containing `git push` passes only if it is exactly `git push [-u] origin HEAD` and the current branch is `feature/*` or `chore/*`; everything else is blocked (fail closed)
+- [x] Existing deny rules kept as a second layer
+- [x] Checked: allowed form passes; `--mirror`, refspecs, compound commands, pushing from `main` are blocked
+
+**Comments**
+- 2026-10-24 Claude: patch drafted (new `.claude/hooks/guard-git-push.sh` + PreToolUse `Bash` entry; deny rules kept). Simulated inputs: allowed form on `feature/*` and `chore/*` → pass; `--mirror`, `-f`, `HEAD:refs/heads/main`, `git -C . push`, compound commands, allowed form on `main` → blocked; `git log | grep push` and a commit message saying "push" → pass. Fails closed without `jq`. Waiting for Mauricio to apply.
+- 2026-10-25 Claude: patch applied by Mauricio, committed 2ddcaa1. Live: `git -C . push --dry-run origin HEAD` blocked by the hook; the allowed form from `chore/ORD-24-retro-cancel-orders` went through and updated PR #13. Known false positive, kept on purpose (fail closed): any command whose text contains a push, such as a commit message passed with `-m`, is blocked; write such messages with `git commit -F <file>`. Stripping quoted text would let `bash -c "..."` through. In Review.
+- 2026-10-25 Claude: automated security review of the pushed hook (1 High, 2 Medium): the check can be evaded on purpose (`$g push`, `send-pack`, git aliases) and does not pin the remote URL or destination ref (an agent could first edit `.git/config`). Accepted risk, not changed: the hook guards against mistakes; deliberate evasion is covered by the `main` ruleset (no bypass actors), the auto-mode classifier, and `git config` not being allowed. Hardening options if wanted: block any `push` token unless exact; pin `git remote get-url --push origin`; or let the hook run the push itself with explicit refspec and `-c` overrides.
+
+### ORD-28 · Task: Orchestration notes: worktree base and Done transitions
+
+- **Status:** In Review
+- **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (findings 4 and 5): agent worktrees start from `origin/main`, so implementers must reset onto the epic branch; and every Done transition after a merge cost a board-only PR.
+
+**Acceptance criteria**
+- [x] `docs/agents/issue-tracker.md`: implementer prompts confirm the worktree base and reset onto the integration branch
+- [x] `docs/agents/issue-tracker.md`: Done transitions after a merge ride with the next work PR; a board-only PR only when the board is needed sooner
+
+**Comments**
+- 2026-10-24 Claude: docs updated as in the criteria. In Review.
+
+### ORD-29 · Task: Harden problem properties of rule violations
+
+- **Status:** In Review
+- **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandler` copies `problemProperties()` without checking keys, so a future rule violation could overwrite standard ProblemDetail fields or expose a domain object.
+
+**Acceptance criteria**
+- [x] `problemProperties()` returns `Map<String, String>`
+- [x] Reserved keys (`type`, `title`, `status`, `detail`, `instance`) are never copied onto the problem detail; tested
+- [x] 409 contract for cancel refusals unchanged
+- 2026-10-24 Claude: Mauricio accepted all 6 findings → ORD-25 to ORD-29 (findings 4 and 5 merged into ORD-28). Left: label `ai-small-fixes` on PR #12 (Mauricio) and criterion 2 after ORD-32.
+
+**Comments**
+- 2026-10-24 Claude: test-first at the `@WebMvcTest` seam: a rule violation whose properties try to overwrite `type`/`title`/`status`/`detail`/`instance` keeps the standard fields and keeps its own extra key. Red on the signature (`Map<String, String>`), then green. Cancel 409 tests unchanged and green; `./mvnw clean verify` green. Note: jdtls had compiled a broken stub into `target/` that made Maven run a half-compiled test; `clean` gave the real red. In Review.
 
 ---
 

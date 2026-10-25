@@ -27,7 +27,7 @@ public final class OrderCannotBeCancelledException extends DomainRuleViolationEx
 
     /** {@code currentState}: the name of the status that forbids cancelling. */
     @Override
-    public Map<String, Object> problemProperties() {
+    public Map<String, String> problemProperties() {
         return Map.of("currentState", currentStatus.name());
     }
 }

@@ -24,7 +24,7 @@ Tracker: `jira/ORD-board.md` simulates Jira for this demo (specs in `docs/specs/
 ## Definition of Ready (ticket)
 - Status `ready-for-agent`, written in `GLOSSARY.md` terms.
 - Describes end-to-end behaviour (a vertical slice) with Given/When/Then acceptance criteria.
-- Technical tasks listed: one red→green cycle per task at a named seam, approved by an engineer. T1 is the story's acceptance test (`*IT`), written first and red until the whole slice is wired; layer tasks follow, outside-in.
+- Technical tasks listed: one red→green cycle per task at a named seam, approved by an engineer. T1 is the story's acceptance test (`*IT`), written first and red until the whole slice is wired; it names every Given/When/Then criterion it covers, so none is left to lower seams by accident. Layer tasks follow, outside-in.
 - Blocking edges listed; all blockers done.
 
 ## Definition of Done (PR)
