@@ -607,7 +607,7 @@ From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandl
 
 ## ORD-30 · Epic: Demo enablement
 
-Status: In Progress · Owner: Mauricio
+Status: Done · Owner: Mauricio
 
 Tooling that measures the harness run against a vanilla run. Not product work, tracked here so it is visible and estimated.
 
@@ -627,13 +627,14 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 ### ORD-32 · Task: Rehearse both runs and fill the scorecard
 
-- **Status:** In Progress
+- **Status:** Done
 - **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21, ORD-31
 
 **Acceptance criteria**
-- [ ] 3 rehearsals each of Run A (vanilla prompt) and Run B (ORD-22 and ORD-23 via `/implement`)
-- [ ] `scripts/score-run.sh` results, time and `/cost` recorded in `docs/demo/RUNBOOK.md` scorecard
+- [x] ~~3 rehearsals each of Run A (vanilla prompt) and Run B (ORD-22 and ORD-23 via `/implement`)~~ dropped by Mauricio (2026-10-25): each rehearsal rebuilds the cancel feature; one agent rehearsal of each run stands instead
+- [x] `scripts/score-run.sh` results, time and `/cost` recorded in `docs/demo/RUNBOOK.md` scorecard (agent rehearsal)
 
 **Comments**
 - 2026-10-25 Claude: agent rehearsal done and scored (RUNBOOK scorecard): A 229 s / $1.21 / judge FAIL (1 violation); B judge PASS, one review-fix round. Found: `make-vanilla.sh` from today's `main` already contains cancel, so rehearsals must start from the `c199963` baseline (steps added to the RUNBOOK). Left for Mauricio: 3 human rehearsals of each run with `/cost`, and slides 18 and 19.
+- 2026-10-25 Claude: Mauricio decided to skip the human rehearsals (each one re-implements ORD-22 and ORD-23). The agent rehearsal in the RUNBOOK scorecard is the result. `rehearsal/run-b` (local, c580cfb) stays as the clean starting point for the live Run B in the talk. Done.
