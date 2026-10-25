@@ -335,7 +335,7 @@ From the ORD-15 retro: ORD-12/13/14 shipped request records with no size limits;
 
 ### ORD-17 · Task: Verify the build when a subagent stops
 
-- **Status:** Draft
+- **Status:** In Progress
 - **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected) · **Labels:** human · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -344,8 +344,11 @@ From the ORD-15 retro: the Stop hook only fires for the main session and runs `.
 
 **Acceptance criteria**
 - [ ] `SubagentStop` hook runs `verify-on-stop.sh` in the subagent's own working directory, same 3-attempt rule
-- [ ] `.claude/worktrees/` in `.gitignore`
+- [x] `.claude/worktrees/` in `.gitignore`
 - [ ] Checked as in ORD-6: a subagent leaving a failing test is sent back
+
+**Comments**
+- 2026-10-24 Claude: `verify-on-stop.sh` now reads `cwd` from the hook input and runs verify in that repo (subagent worktree or project); a `SubagentStop` in the project dir itself is skipped (the main Stop hook covers it); attempts counter also resets when nothing changed (it went stale before). Settings add `SubagentStop`. Simulated inputs in scratch worktrees: failing test in a fake subagent worktree → exit 2 naming the test, counter kept in that worktree; subagent in project dir → exit 0; main Stop, clean → exit 0; fixed → exit 0 and counter reset. Patch handed to Mauricio (hooks and settings are protected). Needs `jq`; without it the hook falls back to the project dir. Left: live check with a real subagent once applied.
 
 ### ORD-18 · Task: Acceptance test first in technical tasks
 
