@@ -514,7 +514,7 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 
 ### ORD-25 · Task: Vanilla copy checks itself for harness hints
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -527,10 +527,11 @@ From the ORD-24 retro (finding 1): `make-vanilla.sh` filters known harness lines
 
 **Comments**
 - 2026-10-24 Claude: check added before the copy's first commit. Clean run exits 0; a planted `hint.txt` with "harness" exits 1 naming the file. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-26 · Task: Acceptance test names every acceptance criterion
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -542,10 +543,11 @@ From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the ha
 
 **Comments**
 - 2026-10-24 Claude: docs updated as in the criteria. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-27 · Task: Check git push arguments with a hook
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected; Claude drafts the patch) · **Labels:** human · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -561,10 +563,11 @@ From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leak
 - 2026-10-24 Claude: patch drafted (new `.claude/hooks/guard-git-push.sh` + PreToolUse `Bash` entry; deny rules kept). Simulated inputs: allowed form on `feature/*` and `chore/*` → pass; `--mirror`, `-f`, `HEAD:refs/heads/main`, `git -C . push`, compound commands, allowed form on `main` → blocked; `git log | grep push` and a commit message saying "push" → pass. Fails closed without `jq`. Waiting for Mauricio to apply.
 - 2026-10-25 Claude: patch applied by Mauricio, committed 2ddcaa1. Live: `git -C . push --dry-run origin HEAD` blocked by the hook; the allowed form from `chore/ORD-24-retro-cancel-orders` went through and updated PR #13. Known false positive, kept on purpose (fail closed): any command whose text contains a push, such as a commit message passed with `-m`, is blocked; write such messages with `git commit -F <file>`. Stripping quoted text would let `bash -c "..."` through. In Review.
 - 2026-10-25 Claude: automated security review of the pushed hook (1 High, 2 Medium): the check can be evaded on purpose (`$g push`, `send-pack`, git aliases) and does not pin the remote URL or destination ref (an agent could first edit `.git/config`). Accepted risk, not changed: the hook guards against mistakes; deliberate evasion is covered by the `main` ruleset (no bypass actors), the auto-mode classifier, and `git config` not being allowed. Hardening options if wanted: block any `push` token unless exact; pin `git remote get-url --push origin`; or let the hook run the push itself with explicit refspec and `-c` overrides.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-28 · Task: Orchestration notes: worktree base and Done transitions
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -577,10 +580,11 @@ From the ORD-24 retro (findings 4 and 5): agent worktrees start from `origin/mai
 
 **Comments**
 - 2026-10-24 Claude: docs updated as in the criteria. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ### ORD-29 · Task: Harden problem properties of rule violations
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -595,6 +599,7 @@ From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandl
 
 **Comments**
 - 2026-10-24 Claude: test-first at the `@WebMvcTest` seam: a rule violation whose properties try to overwrite `type`/`title`/`status`/`detail`/`instance` keeps the standard fields and keeps its own extra key. Red on the signature (`Map<String, String>`), then green. Cancel 409 tests unchanged and green; `./mvnw clean verify` green. Note: jdtls had compiled a broken stub into `target/` that made Maven run a half-compiled test; `clean` gave the real red. In Review.
+- 2026-10-25 Claude: merged to `main` in PR #13 (44eef23). Done.
 
 ---
 
@@ -620,7 +625,7 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 ### ORD-32 · Task: Rehearse both runs and fill the scorecard
 
-- **Status:** Backlog
+- **Status:** In Progress
 - **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21, ORD-31
 
