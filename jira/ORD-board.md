@@ -428,7 +428,7 @@ Decisions to expect: cancelling twice (error or success?), refunds for Paid orde
 
 ### ORD-22 · Story: Cancel a Pending or Paid order
 
-- **Status:** Ready for Agent
+- **Status:** In Progress
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21
