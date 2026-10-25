@@ -557,6 +557,9 @@ From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leak
 - [ ] Existing deny rules kept as a second layer
 - [ ] Checked: allowed form passes; `--mirror`, refspecs, compound commands, pushing from `main` are blocked
 
+**Comments**
+- 2026-10-24 Claude: patch drafted (new `.claude/hooks/guard-git-push.sh` + PreToolUse `Bash` entry; deny rules kept). Simulated inputs: allowed form on `feature/*` and `chore/*` → pass; `--mirror`, `-f`, `HEAD:refs/heads/main`, `git -C . push`, compound commands, allowed form on `main` → blocked; `git log | grep push` and a commit message saying "push" → pass. Fails closed without `jq`. Waiting for Mauricio to apply.
+
 ### ORD-28 · Task: Orchestration notes: worktree base and Done transitions
 
 - **Status:** In Review
