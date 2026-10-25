@@ -494,7 +494,7 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 
 ### ORD-24 · Task: Retro: cancel orders
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Mauricio (with Claude) · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-22, ORD-23
 
@@ -512,6 +512,7 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
   6. **Hardening carried over (code).** `problemProperties()` copies keys without checking reserved ProblemDetail fields (from the PR #12 security review). Proposal: narrow to `Map<String, String>` and reject `type|title|status|detail|instance`.
   Left: Mauricio accepts findings (follow-ups as Draft Tasks); criterion 2 needs the vanilla run from ORD-32.
 - 2026-10-25 Claude: compared with the agent rehearsal of Run A (RUNBOOK scorecard): B `ai-small-fixes` and judge PASS; A fails the judge (1 test-name violation), no domain-rule hierarchy, no Shipped case end to end. The PR #12 label is still for Mauricio. In Review.
+- 2026-10-25 Claude: comparison merged in PR #14. Both criteria met; Done.
 
 ### ORD-25 · Task: Vanilla copy checks itself for harness hints
 
