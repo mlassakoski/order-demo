@@ -399,7 +399,7 @@ From the ORD-15 retro: `PlaceOrderIT`, `ViewOrderIT` and `RefuseInvalidOrderIT` 
 
 ## ORD-20 · Epic: Cancel orders (live demo)
 
-Status: In Review · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
+Status: Done · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
 
 Customers can cancel an order until it ships. Built live in the talk; measured against a vanilla run.
 
@@ -428,7 +428,7 @@ Decisions to expect: cancelling twice (error or success?), refunds for Paid orde
 
 ### ORD-22 · Story: Cancel a Pending or Paid order
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21
@@ -458,10 +458,11 @@ Cancelling a Pending or Paid order returns the updated order as Cancelled. Cuts 
 **Comments**
 - 2026-10-24 Claude: T1–T4 built test-first on `feature/ORD-22-cancel-order` (4d6d42a); T1 `CancelOrderIT` was red (404) until T4. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `Order.status` no longer final; GET and cancel share the malformed-id check; `FakeOrderRepository` now stores copies like the real adapter, so a missing save fails the use case test. T5 runs at epic close.
 - 2026-10-24 Claude: epic close. Reviews since c199963: Standards (no hard violations), Spec (no blockers), `security-reviewer` PASS. Fixes in 7150fb5: Paid path and cancel-twice added to the ITs; `DomainRuleViolationException` carries no state (generic `problemProperties()`, only `OrderCannotBeCancelledException` sets `currentState`); accessor `currentStatus()`; null id says "must not be null"; javadoc; vanilla script simplified. Security re-review PASS; follow-up hardening noted in the PR (reserved keys in `problemProperties()`). `./mvnw verify` green. Pushed and PR opened. In Review.
+- 2026-10-24 Claude: merged to `main` in PR #12 (c6cb2ae). Done.
 
 ### ORD-23 · Story: Refuse to cancel Shipped or Cancelled orders
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-22
@@ -489,16 +490,27 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 **Comments**
 - 2026-10-24 Claude: T1–T3 built test-first on `feature/ORD-23-refuse-cancellation` (d2881b8); T1 `RefuseCancellationIT` was red (200) until T3. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `DomainRuleViolationException` exposes an abstract `currentState()` so the 409 handler stays generic; 409 `instance` is the request path (id already validated). T4 runs at epic close.
 - 2026-10-24 Claude: epic close. Reviews since c199963: Standards (no hard violations), Spec (no blockers), `security-reviewer` PASS. Fixes in 7150fb5: Paid path and cancel-twice added to the ITs; `DomainRuleViolationException` carries no state (generic `problemProperties()`, only `OrderCannotBeCancelledException` sets `currentState`); accessor `currentStatus()`; null id says "must not be null"; javadoc; vanilla script simplified. Security re-review PASS; follow-up hardening noted in the PR (reserved keys in `problemProperties()`). `./mvnw verify` green. Pushed and PR opened. In Review.
+- 2026-10-24 Claude: merged to `main` in PR #12 (c6cb2ae). Done.
 
 ### ORD-24 · Task: Retro: cancel orders
 
-- **Status:** Backlog
+- **Status:** In Progress
 - **Assignee:** Mauricio (with Claude) · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-22, ORD-23
 
 **Acceptance criteria**
-- [ ] `/retro` run in the implementation session; findings in Comments
+- [x] `/retro` run in the implementation session; findings in Comments
 - [ ] First-pass acceptance recorded for ORD-22 and ORD-23 and compared with the vanilla run (ORD-32)
+
+**Comments**
+- 2026-10-24 Claude: retro on the ORD-21 → ORD-23 session. First pass: ORD-22 and ORD-23 needed one review-fix round (7150fb5: two missing IT paths, over-general base exception, wrong null-id wording) → `ai-small-fixes` on PR #12 (label is Mauricio's to apply; agents can't edit PR labels). Findings, most severe first:
+  1. **Vanilla copy can leak again (automated check).** ORD-17 added a `.claude/worktrees/` ignore line and `make-vanilla.sh` copied it: its filter knows only the lines that existed when it was written. Proposal: the script ends by grepping the copy for `pocock|harness|score|claude|first-pass` (except `.claude/settings.json`) and exits non-zero on a match.
+  2. **ITs cover only the first AC (ticket shape).** Both tickets said "Acceptance test (`*IT`) for the happy path"; the spec review then found the Paid path and cancel-twice untested end to end. Proposal: in `to-tickets` output and the Definition of Ready, the T1 IT names every Given/When/Then AC it covers.
+  3. **Permission rules by wildcard leak (tool economy).** Three rounds of automated security findings on `git push` patterns (ORD-8); the exact `git push origin HEAD` allow plus the `main` ruleset closed it. Proposal: none now; if push rules need to grow, use a PreToolUse hook that parses arguments instead of more wildcards.
+  4. **Worktrees start from `origin/main` (navigation).** Every implementer had to reset onto the epic branch; it worked only because the prompt said so. Proposal: keep the reset step in the implementer prompt template (`docs/agents/issue-tracker.md`, merge section).
+  5. **Closing tickets costs a PR each (process).** Moving tickets to Done after a merge needs a board-only PR (PR #9, this one). Proposal: fold Done transitions into the next work PR unless the board is needed sooner.
+  6. **Hardening carried over (code).** `problemProperties()` copies keys without checking reserved ProblemDetail fields (from the PR #12 security review). Proposal: narrow to `Map<String, String>` and reject `type|title|status|detail|instance`.
+  Left: Mauricio accepts findings (follow-ups as Draft Tasks); criterion 2 needs the vanilla run from ORD-32.
 
 ---
 
