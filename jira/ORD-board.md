@@ -399,13 +399,13 @@ From the ORD-15 retro: `PlaceOrderIT`, `ViewOrderIT` and `RefuseInvalidOrderIT` 
 
 ## ORD-20 · Epic: Cancel orders (live demo)
 
-Status: Refinement · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
+Status: In Progress · Owner: Mauricio · Spec: `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
 
 Customers can cancel an order until it ships. Built live in the talk; measured against a vanilla run.
 
 ### ORD-21 · Task: Refinement: cancel orders
 
-- **Status:** In Progress
+- **Status:** Done
 - **Assignee:** Mauricio (with Claude) · **Labels:** refinement, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-14
 
@@ -419,14 +419,16 @@ Decisions to expect: cancelling twice (error or success?), refunds for Paid orde
 **Acceptance criteria**
 - [x] Spec `docs/specs/ORD-20-cancel-orders.md` (reference: `docs/demo/reference/ORD-20-cancel-orders.md`)
 - [x] Glossary updated if new terms appear; ADR only if a decision is hard to reverse
-- [ ] Stories ORD-22 and ORD-23 generated (shape below), reviewed and moved to `Ready for Agent`
+- [x] Stories ORD-22 and ORD-23 generated (shape below), reviewed and moved to `Ready for Agent`
 
 **Comments**
 - 2026-10-24 Claude: refinement run in the agent session (grilling in two rounds, 14 decisions, all as recommended; summary confirmed by Mauricio). Spec written; Cancelled marked final in `GLOSSARY.md`; no ADR. ORD-22 and ORD-23 regenerated as Draft, acceptance test first. Left: Mauricio moves them to `Ready for Agent`.
+- 2026-10-24 Claude: spec merged in PR #11; Mauricio approved ORD-22 and ORD-23 (Ready for Agent). Done.
+
 
 ### ORD-22 · Story: Cancel a Pending or Paid order
 
-- **Status:** Draft
+- **Status:** Ready for Agent
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 3 · **Sprint:** 2
 - **Blocked by:** ORD-21
@@ -455,7 +457,7 @@ Cancelling a Pending or Paid order returns the updated order as Cancelled. Cuts 
 
 ### ORD-23 · Story: Refuse to cancel Shipped or Cancelled orders
 
-- **Status:** Draft
+- **Status:** Ready for Agent
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-22
@@ -500,13 +502,17 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 ### ORD-31 · Task: Create the vanilla baseline
 
-- **Status:** Backlog
+- **Status:** Done
 - **Assignee:** Mauricio · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-14
 
 **Acceptance criteria**
-- [ ] `scripts/make-vanilla.sh` created `../order-demo-vanilla` from `main` after ORD-12 to ORD-14 merged
-- [ ] No harness files, no architecture tests, plugin disabled; `./mvnw verify` green there
+- [x] `scripts/make-vanilla.sh` created `../order-demo-vanilla` from `main` after ORD-12 to ORD-14 merged
+- [x] No harness files, no architecture tests, plugin disabled; `./mvnw verify` green there
+
+**Comments**
+- 2026-10-24 Claude: `../order-demo-vanilla` created from `main` at c199963 (after ORD-12 to ORD-14, before any ORD-22 code), commit 5bc188c. No harness files, no architecture tests, plugin disabled, `./mvnw verify` green there. Fixed on the way: `make-vanilla.sh` let ORD-17's `.claude/worktrees/` ignore entry through; now strips every `.claude/` ignore line. Ticket keys in IT javadoc kept (same product code in both runs). Done.
+
 
 ### ORD-32 · Task: Rehearse both runs and fill the scorecard
 
