@@ -480,10 +480,13 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 `/implement-spec ORD-20` (or `/implement ORD-23`).
 
 **Technical tasks**
-- [ ] **T1 Acceptance: `RefuseCancellationIT`.** Seed a Shipped order through `OrderRepositoryPort` (no ship API yet), then cancel. Red until T2–T3 land. Done when: 409 with `currentState`, and `GET` still shows Shipped.
-- [ ] **T2 Domain: cancellation rule.** Abstract `DomainRuleViolationException`; `OrderCannotBeCancelledException` carrying the order id and current state; `cancel()` throws it from Shipped and Cancelled and leaves the state unchanged. Seam: aggregate. Done when: both refusals tested, state asserted unchanged.
-- [ ] **T3 Web: 409 mapping.** `GlobalExceptionHandler` maps `DomainRuleViolationException` → 409 `ProblemDetail` with the detail above and a `currentState` property. Seam: `@WebMvcTest`. Done when: 409 problem detail with `currentState`.
+- [x] **T1 Acceptance: `RefuseCancellationIT`.** Seed a Shipped order through `OrderRepositoryPort` (no ship API yet), then cancel. Red until T2–T3 land. Done when: 409 with `currentState`, and `GET` still shows Shipped.
+- [x] **T2 Domain: cancellation rule.** Abstract `DomainRuleViolationException`; `OrderCannotBeCancelledException` carrying the order id and current state; `cancel()` throws it from Shipped and Cancelled and leaves the state unchanged. Seam: aggregate. Done when: both refusals tested, state asserted unchanged.
+- [x] **T3 Web: 409 mapping.** `GlobalExceptionHandler` maps `DomainRuleViolationException` → 409 `ProblemDetail` with the detail above and a `currentState` property. Seam: `@WebMvcTest`. Done when: 409 problem detail with `currentState`.
 - [ ] **T4 Close.** `./mvnw verify` green, `/code-review main` clean, `security-reviewer` PASS, commit `feat(ORD-23): refuse to cancel shipped or cancelled orders`, push and open the PR, status `In Review`.
+
+**Comments**
+- 2026-10-24 Claude: T1–T3 built test-first on `feature/ORD-23-refuse-cancellation` (d2881b8); T1 `RefuseCancellationIT` was red (200) until T3. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `DomainRuleViolationException` exposes an abstract `currentState()` so the 409 handler stays generic; 409 `instance` is the request path (id already validated). T4 runs at epic close.
 
 ### ORD-24 · Task: Retro: cancel orders
 
