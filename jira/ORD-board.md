@@ -52,7 +52,7 @@ Create the project skeleton with no feature code: Spring Boot 4.1 / Java 21 / Ma
 - [x] Packages `domain`, `application.port.in|out`, `application.service`, `adapter.in.web`, `adapter.out.persistence` exist and document their rules
 - [x] ArchUnit rules cover layers, naming, Spring placement, setters, generic exceptions, test names
 - [x] Agent harness: short `AGENTS.md` + `CLAUDE.md`, `CODING_STANDARDS.md`, path-scoped rules (`.claude/rules/`), project skill `jira-board`, subagent `security-reviewer`, Stop hook, protect hook, permissions, `.mcp.json` (Context7), plugins `mattpocock-skills` + `jdtls-lsp`
-- [x] CI: `ci.yml` (required check) and `claude.yml` (AI PR review and `@claude` assist)
+- [x] CI: `ci.yml` (required check) and `claude.yml` (AI PR review and `@claude` assist; removed in ORD-5)
 - [x] Governance: CODEOWNERS, CONTRIBUTING, PR template with first-pass acceptance
 
 **Comments**
@@ -108,7 +108,7 @@ Agents never push or change repository settings, so this is human work.
 - [ ] Branch protection on `main`: PR required, 1 code-owner approval, required check `ci / verify`, linear history, no force push
 - [ ] `@your-org/...` handles in `.github/CODEOWNERS` replaced with real teams
 - [ ] Dependabot enabled
-- [ ] Repository secret `ANTHROPIC_API_KEY` added, so the `claude` workflow reviews PRs
+- ~~Repository secret `ANTHROPIC_API_KEY` added, so the `claude` workflow reviews PRs~~ Dropped 2026-10-25 (Mauricio): no AI review in CI, `claude.yml` removed
 
 ### ORD-6 · Spike: Verify the harness behaves as designed
 

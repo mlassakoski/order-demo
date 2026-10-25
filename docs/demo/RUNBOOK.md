@@ -47,7 +47,7 @@ Run in Claude Code inside `order-demo` after setup (also ticket ORD-6). Each lin
 | 10 | Stop hook (feedback loop) | Ask for a test that fails on purpose, then "done" | Hook runs `./mvnw verify`, sends the failure back, agent fixes it |
 | 11 | Architecture as code | `./mvnw verify` | ArchUnit, Spotless, JaCoCo, `ApplicationHealthIT` all green |
 | 12 | Spec-driven tickets | Open `jira/ORD-board.md` + `docs/specs/` | Epics → spec → stories with Given/When/Then + technical tasks |
-| 13 | AI in CI | Open a PR on GitHub | `ci / verify` runs; `claude` posts a review; `@claude` answers in comments |
+| 13 | CI gate | Open a PR on GitHub | `ci / verify` runs as the required check |
 | 14 | Metric | PR template | First-pass acceptance box |
 
 ## Demo prompt

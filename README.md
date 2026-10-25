@@ -53,7 +53,6 @@ Plugin skills may show namespaced in Claude Code (`/mattpocock-skills:grill-with
 | `.claude/settings.json` | Sensor | **Permissions** (no push, no secrets), hooks, enabled plugins and MCP servers. |
 | `pom.xml` gates | Sensor | Enforcer (JDK/Maven), Spotless format, Surefire `*Test` + Failsafe `*IT`, JaCoCo ≥ 80% on domain/application. |
 | `.github/workflows/ci.yml` | Sensor | Required check: `spotless:check` + `./mvnw verify`, reports on failure. |
-| `.github/workflows/claude.yml` | Sensor | **AI in CI**: Claude reviews every PR against standards and its ticket; answers `@claude` in comments. |
 | `.github/dependabot.yml` | Sensor | Weekly dependency and Actions updates. |
 | `.github/CODEOWNERS` | Governance | Tech leads approve guardrails and agent config. |
 | `CONTRIBUTING.md` | Governance | Roles, workflow, Definition of Ready / Done, conventions, branch protection. |
