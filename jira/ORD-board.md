@@ -637,4 +637,4 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 **Comments**
 - 2026-10-25 Claude: agent rehearsal done and scored (RUNBOOK scorecard): A 229 s / $1.21 / judge FAIL (1 violation); B judge PASS, one review-fix round. Found: `make-vanilla.sh` from today's `main` already contains cancel, so rehearsals must start from the `c199963` baseline (steps added to the RUNBOOK). Left for Mauricio: 3 human rehearsals of each run with `/cost`, and slides 18 and 19.
-- 2026-10-25 Claude: Mauricio decided to skip the human rehearsals (each one re-implements ORD-22 and ORD-23). The agent rehearsal in the RUNBOOK scorecard is the result. `rehearsal/run-b` (local, c580cfb) stays as the clean starting point for the live Run B in the talk. Done.
+- 2026-10-25 Claude: Mauricio decided to skip the human rehearsals (each one re-implements ORD-22 and ORD-23). The agent rehearsal in the RUNBOOK scorecard is the result. The local `rehearsal/run-b` branch was removed at Mauricio's request; for the live Run B, rebuild it with the RUNBOOK baseline steps. Done.
