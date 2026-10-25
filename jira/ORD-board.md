@@ -13,7 +13,7 @@ Simulated Jira board for the demo. In a real team this lives in Jira and agents 
 | Points | Fibonacci (1, 2, 3, 5, 8). Anything above 5 gets split. |
 | Branch / commit / PR | `feature/ORD-NN-slug` · `feat(ORD-NN): summary` (Conventional Commits) · PR title = commit summary |
 | Ready / Done | Definition of Ready and Definition of Done: `CONTRIBUTING.md` |
-| Technical tasks | Each story lists its **technical tasks** (T1, T2...): the agent's implementation plan, proposed in refinement and approved by the engineer. One task = one red→green cycle at a named seam. **T1 is the acceptance test** (`*IT`): written first, red until the slice is wired, green when the last layer task lands. The agent ticks them as it goes and may propose changes in Comments; it does not silently skip or add tasks. |
+| Technical tasks | Each story lists its **technical tasks** (T1, T2...): the agent's implementation plan, proposed in refinement and approved by the engineer. One task = one red→green cycle at a named seam. **T1 is the acceptance test** (`*IT`): written first, red until the slice is wired, green when the last layer task lands. It names every Given/When/Then criterion it covers. The agent ticks them as it goes and may propose changes in Comments; it does not silently skip or add tasks. |
 
 ## How agents use this board
 
@@ -514,7 +514,7 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 
 ### ORD-25 · Task: Vanilla copy checks itself for harness hints
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -522,12 +522,15 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 From the ORD-24 retro (finding 1): `make-vanilla.sh` filters known harness lines, so new ones leak (ORD-17's `.claude/worktrees/`). The script should prove its output is clean instead.
 
 **Acceptance criteria**
-- [ ] The script ends by searching the copy (except `.git` and `.claude/settings.json`) for harness hints and exits non-zero, naming the files, on a match
-- [ ] Checked: a clean run passes; a planted hint fails
+- [x] The script ends by searching the copy (except `.git` and `.claude/settings.json`) for harness hints and exits non-zero, naming the files, on a match
+- [x] Checked: a clean run passes; a planted hint fails
+
+**Comments**
+- 2026-10-24 Claude: check added before the copy's first commit. Clean run exits 0; a planted `hint.txt` with "harness" exits 1 naming the file. In Review.
 
 ### ORD-26 · Task: Acceptance test names every acceptance criterion
 
-- **Status:** Ready for Agent
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -535,7 +538,10 @@ From the ORD-24 retro (finding 1): `make-vanilla.sh` filters known harness lines
 From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the happy path" only, and review found the Paid path and cancel-twice untested end to end.
 
 **Acceptance criteria**
-- [ ] Board conventions and `CONTRIBUTING.md` Definition of Ready: T1's acceptance IT lists every Given/When/Then criterion of the story it covers
+- [x] Board conventions and `CONTRIBUTING.md` Definition of Ready: T1's acceptance IT lists every Given/When/Then criterion of the story it covers
+
+**Comments**
+- 2026-10-24 Claude: docs updated as in the criteria. In Review.
 
 ### ORD-27 · Task: Check git push arguments with a hook
 
@@ -553,7 +559,7 @@ From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leak
 
 ### ORD-28 · Task: Orchestration notes: worktree base and Done transitions
 
-- **Status:** Ready for Agent
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -561,12 +567,15 @@ From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leak
 From the ORD-24 retro (findings 4 and 5): agent worktrees start from `origin/main`, so implementers must reset onto the epic branch; and every Done transition after a merge cost a board-only PR.
 
 **Acceptance criteria**
-- [ ] `docs/agents/issue-tracker.md`: implementer prompts confirm the worktree base and reset onto the integration branch
-- [ ] `docs/agents/issue-tracker.md`: Done transitions after a merge ride with the next work PR; a board-only PR only when the board is needed sooner
+- [x] `docs/agents/issue-tracker.md`: implementer prompts confirm the worktree base and reset onto the integration branch
+- [x] `docs/agents/issue-tracker.md`: Done transitions after a merge ride with the next work PR; a board-only PR only when the board is needed sooner
+
+**Comments**
+- 2026-10-24 Claude: docs updated as in the criteria. In Review.
 
 ### ORD-29 · Task: Harden problem properties of rule violations
 
-- **Status:** Ready for Agent
+- **Status:** In Progress
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 

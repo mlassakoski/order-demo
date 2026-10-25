@@ -44,6 +44,14 @@ JSON
 # Plain README so the agent gets no hints.
 printf '# order-demo\n\nSpring Boot order service.\n' > "$dst/README.md"
 
+# Prove the copy is clean instead of trusting the exclude list: new harness files would leak silently.
+leaks="$(grep -rliE 'pocock|harness|score|claude|first-pass' "$dst" --exclude-dir=.git | grep -v "^$dst/.claude/settings.json$" || true)"
+if [ -n "$leaks" ]; then
+  echo "Vanilla copy leaks harness hints; fix the excludes in $0 and remove $dst:" >&2
+  echo "$leaks" >&2
+  exit 1
+fi
+
 (cd "$dst" && git init -q && git add -A && git commit -qm "Vanilla baseline")
 
 echo "Vanilla copy ready at: $dst"
