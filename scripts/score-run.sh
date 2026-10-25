@@ -6,7 +6,14 @@
 set -uo pipefail
 
 src="$(cd "$(dirname "$0")/.." && pwd)"
-dst="${1:?usage: score-run.sh <project-dir>}"
+if [ $# -ne 1 ] || [ ! -d "$1" ]; then
+  echo "Usage: scripts/score-run.sh <project-dir>   (the run to score)" >&2
+  echo "  e.g. scripts/score-run.sh /tmp/run-a1     Run A copy of ../order-demo-vanilla" >&2
+  echo "       scripts/score-run.sh .               Run B, on rehearsal/run-b" >&2
+  [ $# -eq 1 ] && echo "Not a directory: $1" >&2
+  exit 2
+fi
+dst="$1"
 
 mkdir -p "$dst/src/test/java/com/demo/order/architecture" "$dst/src/test/resources"
 cp "$src"/src/test/java/com/demo/order/architecture/*.java "$dst/src/test/java/com/demo/order/architecture/"
