@@ -1,0 +1,138 @@
+{
+  "info": {
+    "name": "order-demo",
+    "description": "All routes of the order service. Run the app with `./mvnw spring-boot:run`, then run the folders in order (Run collection works too). `Place order` saves the new id in the `orderId` collection variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "orderId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/health" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 UP', () => {",
+            "  pm.response.to.have.status(200);",
+            "  pm.expect(pm.response.json().status).to.eql('UP');",
+            "});"
+          ] } }]
+        },
+        {
+          "name": "Info",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/info" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200', () => pm.response.to.have.status(200));"
+          ] } }]
+        }
+      ]
+    },
+    {
+      "name": "Happy path",
+      "item": [
+        {
+          "name": "Place order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"customer-1\",\n  \"lines\": [\n    { \"productId\": \"product-1\", \"quantity\": 2 },\n    { \"productId\": \"product-2\", \"quantity\": 1 }\n  ]\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 PENDING with Location', () => {",
+            "  pm.response.to.have.status(201);",
+            "  pm.response.to.have.header('Location');",
+            "  pm.expect(pm.response.json().status).to.eql('PENDING');",
+            "});",
+            "pm.collectionVariables.set('orderId', pm.response.json().id);"
+          ] } }]
+        },
+        {
+          "name": "View order",
+          "request": { "method": "GET", "url": "{{baseUrl}}/orders/{{orderId}}" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 PENDING', () => {",
+            "  pm.response.to.have.status(200);",
+            "  pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('orderId'));",
+            "  pm.expect(pm.response.json().status).to.eql('PENDING');",
+            "});"
+          ] } }]
+        },
+        {
+          "name": "Cancel order",
+          "request": { "method": "POST", "url": "{{baseUrl}}/orders/{{orderId}}/cancel" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 CANCELLED', () => {",
+            "  pm.response.to.have.status(200);",
+            "  pm.expect(pm.response.json().status).to.eql('CANCELLED');",
+            "});"
+          ] } }]
+        }
+      ]
+    },
+    {
+      "name": "Errors",
+      "item": [
+        {
+          "name": "Cancel twice -> 409",
+          "request": { "method": "POST", "url": "{{baseUrl}}/orders/{{orderId}}/cancel" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('409 with currentState', () => {",
+            "  pm.response.to.have.status(409);",
+            "  pm.expect(pm.response.json().currentState).to.eql('CANCELLED');",
+            "});"
+          ] } }]
+        },
+        {
+          "name": "Invalid body -> 400",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"\",\n  \"lines\": []\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400', () => pm.response.to.have.status(400));"
+          ] } }]
+        },
+        {
+          "name": "Quantity over 1000 -> 400",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"customer-1\",\n  \"lines\": [{ \"productId\": \"product-1\", \"quantity\": 1001 }]\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400', () => pm.response.to.have.status(400));"
+          ] } }]
+        },
+        {
+          "name": "Unknown id -> 404",
+          "request": { "method": "GET", "url": "{{baseUrl}}/orders/00000000-0000-0000-0000-000000000000" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404', () => pm.response.to.have.status(404));"
+          ] } }]
+        },
+        {
+          "name": "Malformed id -> 404",
+          "request": { "method": "GET", "url": "{{baseUrl}}/orders/not-a-uuid" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404', () => pm.response.to.have.status(404));"
+          ] } }]
+        },
+        {
+          "name": "Cancel unknown id -> 404",
+          "request": { "method": "POST", "url": "{{baseUrl}}/orders/00000000-0000-0000-0000-000000000000/cancel" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404', () => pm.response.to.have.status(404));"
+          ] } }]
+        }
+      ]
+    }
+  ]
+}
