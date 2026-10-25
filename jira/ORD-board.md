@@ -607,7 +607,7 @@ From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandl
 
 ## ORD-30 · Epic: Demo enablement
 
-Status: Backlog · Owner: Mauricio
+Status: In Progress · Owner: Mauricio
 
 Tooling that measures the harness run against a vanilla run. Not product work, tracked here so it is visible and estimated.
 
