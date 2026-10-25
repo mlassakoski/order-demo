@@ -345,12 +345,13 @@ From the ORD-15 retro: the Stop hook only fires for the main session and runs `.
 **Acceptance criteria**
 - [x] `SubagentStop` hook runs `verify-on-stop.sh` in the subagent's own working directory, same 3-attempt rule
 - [x] `.claude/worktrees/` in `.gitignore`
-- [ ] Checked as in ORD-6: a subagent leaving a failing test is sent back
+- [x] ~~Checked as in ORD-6: a subagent leaving a failing test is sent back~~ changed (Mauricio, option 1): the hook detects a red worktree but cannot hold a background subagent; the orchestrator checks the worktree before merging (`docs/agents/issue-tracker.md`)
 
 **Comments**
 - 2026-10-24 Claude: `verify-on-stop.sh` now reads `cwd` from the hook input and runs verify in that repo (subagent worktree or project); a `SubagentStop` in the project dir itself is skipped (the main Stop hook covers it); attempts counter also resets when nothing changed (it went stale before). Settings add `SubagentStop`. Simulated inputs in scratch worktrees: failing test in a fake subagent worktree → exit 2 naming the test, counter kept in that worktree; subagent in project dir → exit 0; main Stop, clean → exit 0; fixed → exit 0 and counter reset. Patch handed to Mauricio (hooks and settings are protected). Needs `jq`; without it the hook falls back to the project dir. Left: live check with a real subagent once applied.
 - 2026-10-24 Claude: patch applied by Mauricio, committed 6c554ad; `./mvnw verify` green. Live check with a background worktree subagent that planted a failing test: the hook fired in the subagent's worktree, verify failed on the probe, counter = 1, exit 2. But the subagent was **not** sent back: its result was returned (~23s) before the build finished. So the hook detects but does not yet block background subagents. Open: rerun the check with a foreground subagent, or treat the hook as a detector and have the orchestrator read `.claude/.verify-attempts` in the worktree before merging. Also seen: the worktree was created from `origin/main`, not the current branch, so implementer prompts must keep the "confirm base, reset if not" step.
 - 2026-10-24 Claude: automated security review of 6c554ad (Medium): the hook trusted `cwd` from its input, so it could run `./mvnw` from any directory. Follow-up patch: build only in the project or one of `git worktree list` entries (resolved with `pwd -P`), else exit 0. Tested: an outside repo with a planted `mvnw` is never run (SubagentStop and Stop); registered worktree with failing test → exit 2; project dir cases unchanged. Patch handed to Mauricio.
+- 2026-10-24 Claude: Mauricio chose option 1 (hook as detector + orchestrator check before merge); rule added to `docs/agents/issue-tracker.md`. Waiting for Mauricio to apply the directory-restriction patch, then In Review.
 
 ### ORD-18 · Task: Acceptance test first in technical tasks
 
