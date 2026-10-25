@@ -30,7 +30,7 @@ Same task, two setups, one judge.
 4. Rehearse both runs 3 times. Record the best ones as backup. Fill the scorecard.
    Both runs start from the **baseline** `c199963` (ORD-12 to ORD-14, no cancel code): `main` already contains the cancel feature since PR #12.
    - Run A: work in a copy of `../order-demo-vanilla` (`cp -R ../order-demo-vanilla /tmp/run-a`), never in `make-vanilla.sh` output from today's `main`.
-   - Run B: `git switch -c rehearsal/run-b c199963`, then restore today's harness on it (`git checkout main -- .claude CODING_STANDARDS.md CONTRIBUTING.md docs/agents jira scripts src/test/java/com/demo/order/architecture`).
+   - Run B: `git switch -c rehearsal/run-b c199963`, then restore today's harness on it (`git checkout main -- .claude CODING_STANDARDS.md CONTRIBUTING.md docs/agents scripts src/test/java/com/demo/order/architecture`). Keep the baseline's `jira/` so ORD-22 and ORD-23 are not Done yet.
 
 ## Concept tour (5 min, proves every AI concept works)
 
