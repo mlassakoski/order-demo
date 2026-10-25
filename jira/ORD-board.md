@@ -166,7 +166,7 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 
 ## ORD-10 · Epic: Place and view orders
 
-Status: In Review · Owner: Mauricio · Spec: `docs/specs/ORD-10-place-and-view-orders.md`
+Status: Done · Owner: Mauricio · Spec: `docs/specs/ORD-10-place-and-view-orders.md`
 
 Customers can place an order with one or more order lines and look it up later. First feature: sets the patterns (aggregate, ports, error model, tests) for everything after it.
 
@@ -186,7 +186,7 @@ Refinement session with the agent: `/grill-with-docs` → `/to-spec` → `/to-ti
 
 ### ORD-12 · Story: Place an order
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent · **Points:** 5 · **Sprint:** 1
 - **Blocked by:** ORD-3, ORD-4
@@ -218,10 +218,11 @@ A customer sends a customer identifier and one or more order lines and gets back
 **Comments**
 - 2026-10-24 Claude: T1–T5 built test-first on `feature/ORD-12-place-an-order` (8a4177d), merged into `feature/ORD-10-place-and-view-orders`; `./mvnw verify` green. T5 `PlaceOrderIT` was green on first run (layers already wired by T1–T4). It checks storage through `OrderRepositoryPort` since `GET` arrives in ORD-14. JSON contract: `{id, customerId, lines:[{productId, quantity}], status:"PENDING"}`, `Location: /orders/{id}` (relative). Value objects only reject null for now; blank/quantity/empty rules come in ORD-13. T6 runs at epic close.
 - 2026-10-24 Claude: epic close. Code review since c5fa7c9 (Standards + Spec) and `security-reviewer` (first FAIL: unbounded input, raw id echoed) addressed in 89fe242 `fix(ORD-10): address review findings` with Mauricio's decisions: ≤100 lines, ids ≤64 chars, quantity 1–1000, order id is a UUID (malformed → 404 without echo), fixed English messages, `rehydrate` keeps invariants. Re-review: PASS. Open, Low: Spring's default 404 for unmapped paths (`/orders/a/b`) echoes the path; in-memory store has no cap (placeholder adapter). `./mvnw verify` green on `feature/ORD-10-place-and-view-orders`. No PR: no remote yet (ORD-5), nothing pushed.
+- 2026-10-24 Claude: merged to `main` in PR #7 (65d3f62); status Done.
 
 ### ORD-13 · Story: Refuse invalid orders
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent · **Points:** 3 · **Sprint:** 1
 - **Blocked by:** ORD-12
@@ -252,10 +253,11 @@ Invalid orders are refused with a `400` problem detail and nothing is stored. In
 **Comments**
 - 2026-10-24 Claude: T1–T4 built test-first on `feature/ORD-13-refuse-invalid-orders` (ffbfd72, merged with ORD-14 in d5c1b93); `./mvnw verify` green. `RefuseInvalidOrderIT` green on first run; checks "nothing stored" with a spy on `OrderRepositoryPort.save`. Choices: `OrderLineRequest.quantity` is `Integer` so `@NotNull` catches a missing quantity; blank/null ids throw `InvalidIdentifierException`; empty-lines rule sits in the `Order` constructor so `rehydrate` enforces it too; bean-validation 400 `detail` lists failing fields sorted by name (message wording follows the JVM locale, tests assert field names). T5 runs at epic close.
 - 2026-10-24 Claude: epic close. Code review since c5fa7c9 (Standards + Spec) and `security-reviewer` (first FAIL: unbounded input, raw id echoed) addressed in 89fe242 `fix(ORD-10): address review findings` with Mauricio's decisions: ≤100 lines, ids ≤64 chars, quantity 1–1000, order id is a UUID (malformed → 404 without echo), fixed English messages, `rehydrate` keeps invariants. Re-review: PASS. Open, Low: Spring's default 404 for unmapped paths (`/orders/a/b`) echoes the path; in-memory store has no cap (placeholder adapter). `./mvnw verify` green on `feature/ORD-10-place-and-view-orders`. No PR: no remote yet (ORD-5), nothing pushed.
+- 2026-10-24 Claude: merged to `main` in PR #7 (65d3f62); status Done.
 
 ### ORD-14 · Story: View an order
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent · **Points:** 2 · **Sprint:** 1
 - **Blocked by:** ORD-12
@@ -285,6 +287,7 @@ As a customer, I want to see an order by its identifier, so that I can check its
 - 2026-10-24 Claude: epic close. Code review since c5fa7c9 (Standards + Spec) and `security-reviewer` (first FAIL: unbounded input, raw id echoed) addressed in 89fe242 `fix(ORD-10): address review findings` with Mauricio's decisions: ≤100 lines, ids ≤64 chars, quantity 1–1000, order id is a UUID (malformed → 404 without echo), fixed English messages, `rehydrate` keeps invariants. Re-review: PASS. Open, Low: Spring's default 404 for unmapped paths (`/orders/a/b`) echoes the path; in-memory store has no cap (placeholder adapter). `./mvnw verify` green on `feature/ORD-10-place-and-view-orders`. No PR: no remote yet (ORD-5), nothing pushed.
 
 Note: if ORD-13 and ORD-14 run in parallel, both touch `GlobalExceptionHandler`; the second PR rebases and keeps both mappings.
+- 2026-10-24 Claude: merged to `main` in PR #7 (65d3f62); status Done.
 
 ### ORD-15 · Task: Retro: place and view orders
 
