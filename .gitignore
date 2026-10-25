@@ -21,3 +21,7 @@ score.log
 
 # Claude Code subagent worktrees
 .claude/worktrees/
+
+# Postman app workspace binding (per user)
+.postman/
+postman/globals/
