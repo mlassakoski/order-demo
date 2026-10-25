@@ -309,11 +309,52 @@ Run `/retro` on the epic's sessions. Mechanical mistakes become checks (ArchUnit
 
 **Acceptance criteria**
 - [ ] First-pass acceptance recorded for ORD-12, ORD-13, ORD-14 (labels on the PRs)
-- [ ] Retro findings listed in Comments, most severe first
-- [ ] Follow-up Tasks created for accepted findings
+- [x] Retro findings listed in Comments, most severe first
+- [x] Follow-up Tasks created for accepted findings
 
 **Comments**
 - 2026-10-24 Claude: `/retro` run on the ORD-3 → ORD-10 session; 9 findings proposed (unbounded request input → ArchUnit rule; `requireNonNull` in domain → ArchUnit rule; Stop hook skips subagents → `SubagentStop` hook; ITs never red → acceptance IT first; rtk breaks git in worktrees; jdtls diagnostics noise; `/code-review main` pointer (fixed by `main`); one board writer in parallel runs; `tests.md` vs "nothing stored"). Waiting for Mauricio to accept findings; then follow-up Tasks. First-pass labels on PR #7: ORD-12/13/14 all `ai-small-fixes` (one review-fix round).
+- 2026-10-24 Claude: Mauricio accepted findings 1, 3, 4 → Draft ORD-16, ORD-17, ORD-18; rejected 5, 6, 8, 9; 7 fixed by renaming to `main`. Left: first-pass labels on PR #7 (all three stories `ai-small-fixes`): needs Mauricio, the agent has no GitHub write access.
+
+### ORD-16 · Task: Every request input has a limit
+
+- **Status:** Draft
+- **Assignee:** Mauricio (architecture tests are team-owned) · **Labels:** human · **Points:** 2 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-15 retro: ORD-12/13/14 shipped request records with no size limits; only `security-reviewer` caught it, at epic close, and the limits had to be decided late. Mechanical part becomes a check, the decision moves to refinement.
+
+**Acceptance criteria**
+- [ ] ArchUnit rule: every `String` or collection field of a `..adapter.in.web..*Request` record carries `@Size(max = ...)`, every numeric field `@Max`; passes on current code
+- [ ] `CODING_STANDARDS.md` judgement line: every public input has a business limit, named in the spec (refinement asks for it)
+
+### ORD-17 · Task: Verify the build when a subagent stops
+
+- **Status:** Draft
+- **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected) · **Labels:** human · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-15 retro: the Stop hook only fires for the main session and runs `./mvnw verify` in the main repo. Implementer subagents (`SubagentStop`, working in `.claude/worktrees/*`) were verified only because their prompts said so.
+
+**Acceptance criteria**
+- [ ] `SubagentStop` hook runs `verify-on-stop.sh` in the subagent's own working directory, same 3-attempt rule
+- [ ] `.claude/worktrees/` in `.gitignore`
+- [ ] Checked as in ORD-6: a subagent leaving a failing test is sent back
+
+### ORD-18 · Task: Acceptance test first in technical tasks
+
+- **Status:** Draft
+- **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+From the ORD-15 retro: `PlaceOrderIT`, `ViewOrderIT` and `RefuseInvalidOrderIT` were the last technical task and passed on their first run, so TDD never saw them red. Writing the acceptance test first (outside-in) keeps it red until the last layer lands.
+
+**Acceptance criteria**
+- [ ] Board conventions ("Technical tasks" row) and `CONTRIBUTING.md` Definition of Ready say: T1 is the story's acceptance test (`*IT`), red until the slice is wired; layer tasks follow
+- [ ] ORD-22 and ORD-23 drafts reordered to that shape
 
 ---
 
