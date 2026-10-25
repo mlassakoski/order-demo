@@ -13,7 +13,7 @@ Simulated Jira board for the demo. In a real team this lives in Jira and agents 
 | Points | Fibonacci (1, 2, 3, 5, 8). Anything above 5 gets split. |
 | Branch / commit / PR | `feature/ORD-NN-slug` · `feat(ORD-NN): summary` (Conventional Commits) · PR title = commit summary |
 | Ready / Done | Definition of Ready and Definition of Done: `CONTRIBUTING.md` |
-| Technical tasks | Each story lists its **technical tasks** (T1, T2...): the agent's implementation plan, proposed in refinement and approved by the engineer. One task = one red→green cycle at a named seam. The agent ticks them as it goes and may propose changes in Comments; it does not silently skip or add tasks. |
+| Technical tasks | Each story lists its **technical tasks** (T1, T2...): the agent's implementation plan, proposed in refinement and approved by the engineer. One task = one red→green cycle at a named seam. **T1 is the acceptance test** (`*IT`): written first, red until the slice is wired, green when the last layer task lands. The agent ticks them as it goes and may propose changes in Comments; it does not silently skip or add tasks. |
 
 ## How agents use this board
 
@@ -346,7 +346,7 @@ From the ORD-15 retro: the Stop hook only fires for the main session and runs `.
 
 ### ORD-18 · Task: Acceptance test first in technical tasks
 
-- **Status:** Draft
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -354,8 +354,11 @@ From the ORD-15 retro: the Stop hook only fires for the main session and runs `.
 From the ORD-15 retro: `PlaceOrderIT`, `ViewOrderIT` and `RefuseInvalidOrderIT` were the last technical task and passed on their first run, so TDD never saw them red. Writing the acceptance test first (outside-in) keeps it red until the last layer lands.
 
 **Acceptance criteria**
-- [ ] Board conventions ("Technical tasks" row) and `CONTRIBUTING.md` Definition of Ready say: T1 is the story's acceptance test (`*IT`), red until the slice is wired; layer tasks follow
-- [ ] ORD-22 and ORD-23 drafts reordered to that shape
+- [x] Board conventions ("Technical tasks" row) and `CONTRIBUTING.md` Definition of Ready say: T1 is the story's acceptance test (`*IT`), red until the slice is wired; layer tasks follow
+- [x] ORD-22 and ORD-23 drafts reordered to that shape
+
+**Comments**
+- 2026-10-24 Claude: rule added to the board conventions and `CONTRIBUTING.md` Definition of Ready; ORD-22 and ORD-23 drafts now start with their `*IT` (renumbered, close task last). Branch `feature/ORD-18-acceptance-test-first`.
 
 ---
 
@@ -406,10 +409,10 @@ Cancelling a Pending or Paid order returns the updated order as Cancelled. Cuts 
 `git switch -c feature/ORD-22-cancel-order` → `/clear` → `/implement ORD-22`.
 
 **Technical tasks**
-- [ ] **T1 Domain: `Order.cancel()`.** Allowed from Pending and Paid; sets Cancelled. Seam: aggregate (states set up with `Order.rehydrate`). Done when: Pending → Cancelled and Paid → Cancelled.
-- [ ] **T2 Application: cancel-order use case.** `CancelOrderUseCase` + `CancelOrderCommand`, `CancelOrderService`: load → `cancel()` → save; unknown id → `OrderNotFoundException`. Seam: use case with in-memory fake port. Done when: the stored order is Cancelled after the call.
-- [ ] **T3 Web: `POST /orders/{id}/cancel`.** Returns 200 with `OrderResponse`. Seam: `@WebMvcTest`. Done when: 200 body with state Cancelled; 404 for unknown id (existing mapping).
-- [ ] **T4 Acceptance: `CancelOrderIT`.** Done when: place → cancel → `GET` shows Cancelled.
+- [ ] **T1 Acceptance: `CancelOrderIT`.** Red until T2–T4 land. Done when: place → cancel → `GET` shows Cancelled.
+- [ ] **T2 Domain: `Order.cancel()`.** Allowed from Pending and Paid; sets Cancelled. Seam: aggregate (states set up with `Order.rehydrate`). Done when: Pending → Cancelled and Paid → Cancelled.
+- [ ] **T3 Application: cancel-order use case.** `CancelOrderUseCase` + `CancelOrderCommand`, `CancelOrderService`: load → `cancel()` → save; unknown id → `OrderNotFoundException`. Seam: use case with in-memory fake port. Done when: the stored order is Cancelled after the call.
+- [ ] **T4 Web: `POST /orders/{id}/cancel`.** Returns 200 with `OrderResponse`. Seam: `@WebMvcTest`. Done when: 200 body with state Cancelled; 404 for unknown id (existing mapping).
 - [ ] **T5 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-22): cancel an order`, PR.
 
 ### ORD-23 · Story: Refuse to cancel Shipped or Cancelled orders
@@ -431,9 +434,9 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 - [ ] The problem detail says why and includes the current state
 
 **Technical tasks**
-- [ ] **T1 Domain: cancellation rule.** Abstract `DomainRuleViolationException`; `OrderCannotBeCancelledException` carrying the order id and current state; `cancel()` throws it from Shipped and Cancelled and leaves the state unchanged. Seam: aggregate. Done when: both refusals tested, state asserted unchanged.
-- [ ] **T2 Web: 409 mapping.** `GlobalExceptionHandler` maps `DomainRuleViolationException` → 409 `ProblemDetail` with a `currentState` property. Seam: `@WebMvcTest`. Done when: 409 problem detail with `currentState`.
-- [ ] **T3 Acceptance: `RefuseCancellationIT`.** Seed a Shipped order through `OrderRepositoryPort` (no ship API yet), then cancel. Done when: 409, and `GET` still shows Shipped.
+- [ ] **T1 Acceptance: `RefuseCancellationIT`.** Seed a Shipped order through `OrderRepositoryPort` (no ship API yet), then cancel. Red until T2–T3 land. Done when: 409, and `GET` still shows Shipped.
+- [ ] **T2 Domain: cancellation rule.** Abstract `DomainRuleViolationException`; `OrderCannotBeCancelledException` carrying the order id and current state; `cancel()` throws it from Shipped and Cancelled and leaves the state unchanged. Seam: aggregate. Done when: both refusals tested, state asserted unchanged.
+- [ ] **T3 Web: 409 mapping.** `GlobalExceptionHandler` maps `DomainRuleViolationException` → 409 `ProblemDetail` with a `currentState` property. Seam: `@WebMvcTest`. Done when: 409 problem detail with `currentState`.
 - [ ] **T4 Close.** `./mvnw verify` green, `/code-review main` clean, commit `feat(ORD-23): refuse to cancel shipped or cancelled orders`, PR.
 
 **Execution (live)**
