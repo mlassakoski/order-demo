@@ -39,3 +39,4 @@ Throw specific exceptions only ⚙️. Problem details never contain stack trace
 - Constructor injection ⚙️. SLF4J ⚙️. No Lombok in the domain ⚙️. Add dependencies only after asking.
 - Formatting is automatic (Spotless, Palantir Java Format) ⚙️.
 - Never log personal data or full request bodies.
+- Every public input has a business limit, named in the spec: max length for strings, max size for collections, max value for numbers. Request records carry the annotations ⚙️; the domain enforces the same limits.

@@ -319,7 +319,7 @@ Run `/retro` on the epic's sessions. Mechanical mistakes become checks (ArchUnit
 
 ### ORD-16 · Task: Every request input has a limit
 
-- **Status:** Draft
+- **Status:** In Progress
 - **Assignee:** Mauricio (architecture tests are team-owned) · **Labels:** human · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -329,6 +329,9 @@ From the ORD-15 retro: ORD-12/13/14 shipped request records with no size limits;
 **Acceptance criteria**
 - [ ] ArchUnit rule: every `String` or collection field of a `..adapter.in.web..*Request` record carries `@Size(max = ...)`, every numeric field `@Max`; passes on current code
 - [ ] `CODING_STANDARDS.md` judgement line: every public input has a business limit, named in the spec (refinement asks for it)
+
+**Comments**
+- 2026-10-24 Claude: rule written as new `architecture/RequestLimitsTest.java` (3 rules: strings and collections need `@Size`, numbers need `@Max`, on fields of `*Request` classes). Built and run in a scratch worktree, since agents can't edit `architecture/`: green on current code; with the three limits removed, all three rules fail naming `PlaceOrderRequest.customerId`, `PlaceOrderRequest.lines`, `OrderLineRequest.quantity`. Patch handed to Mauricio to review and apply. `CODING_STANDARDS.md` line added on `feature/ORD-16-request-input-limits`.
 
 ### ORD-17 · Task: Verify the build when a subagent stops
 
