@@ -319,7 +319,7 @@ Run `/retro` on the epic's sessions. Mechanical mistakes become checks (ArchUnit
 
 ### ORD-16 · Task: Every request input has a limit
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Mauricio (architecture tests are team-owned) · **Labels:** human · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -327,15 +327,16 @@ Run `/retro` on the epic's sessions. Mechanical mistakes become checks (ArchUnit
 From the ORD-15 retro: ORD-12/13/14 shipped request records with no size limits; only `security-reviewer` caught it, at epic close, and the limits had to be decided late. Mechanical part becomes a check, the decision moves to refinement.
 
 **Acceptance criteria**
-- [ ] ArchUnit rule: every `String` or collection field of a `..adapter.in.web..*Request` record carries `@Size(max = ...)`, every numeric field `@Max`; passes on current code
-- [ ] `CODING_STANDARDS.md` judgement line: every public input has a business limit, named in the spec (refinement asks for it)
+- [x] ArchUnit rule: every `String` or collection field of a `..adapter.in.web..*Request` record carries `@Size(max = ...)`, every numeric field `@Max`; passes on current code
+- [x] `CODING_STANDARDS.md` judgement line: every public input has a business limit, named in the spec (refinement asks for it)
 
 **Comments**
 - 2026-10-24 Claude: rule written as new `architecture/RequestLimitsTest.java` (3 rules: strings and collections need `@Size`, numbers need `@Max`, on fields of `*Request` classes). Built and run in a scratch worktree, since agents can't edit `architecture/`: green on current code; with the three limits removed, all three rules fail naming `PlaceOrderRequest.customerId`, `PlaceOrderRequest.lines`, `OrderLineRequest.quantity`. Patch handed to Mauricio to review and apply. `CODING_STANDARDS.md` line added on `feature/ORD-16-request-input-limits`.
+- 2026-10-24 Claude: patch applied by Mauricio and committed; `./mvnw verify` green with `RequestLimitsTest` (3 rules). In Review.
 
 ### ORD-17 · Task: Verify the build when a subagent stops
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected) · **Labels:** human · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -352,6 +353,7 @@ From the ORD-15 retro: the Stop hook only fires for the main session and runs `.
 - 2026-10-24 Claude: patch applied by Mauricio, committed 6c554ad; `./mvnw verify` green. Live check with a background worktree subagent that planted a failing test: the hook fired in the subagent's worktree, verify failed on the probe, counter = 1, exit 2. But the subagent was **not** sent back: its result was returned (~23s) before the build finished. So the hook detects but does not yet block background subagents. Open: rerun the check with a foreground subagent, or treat the hook as a detector and have the orchestrator read `.claude/.verify-attempts` in the worktree before merging. Also seen: the worktree was created from `origin/main`, not the current branch, so implementer prompts must keep the "confirm base, reset if not" step.
 - 2026-10-24 Claude: automated security review of 6c554ad (Medium): the hook trusted `cwd` from its input, so it could run `./mvnw` from any directory. Follow-up patch: build only in the project or one of `git worktree list` entries (resolved with `pwd -P`), else exit 0. Tested: an outside repo with a planted `mvnw` is never run (SubagentStop and Stop); registered worktree with failing test → exit 2; project dir cases unchanged. Patch handed to Mauricio.
 - 2026-10-24 Claude: Mauricio chose option 1 (hook as detector + orchestrator check before merge); rule added to `docs/agents/issue-tracker.md`. Waiting for Mauricio to apply the directory-restriction patch, then In Review.
+- 2026-10-24 Claude: directory-restriction patch applied by Mauricio and committed; `./mvnw verify` green. In Review.
 
 ### ORD-18 · Task: Acceptance test first in technical tasks
 
