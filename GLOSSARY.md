@@ -40,4 +40,4 @@ To stop an order before it ships.
 _Avoid_: Delete, void, abort
 
 **Cancelled**:
-The final state of an order that was stopped before shipping.
+The final state of an order that was stopped before shipping. Final: a cancelled order cannot be cancelled again or resumed.
