@@ -34,7 +34,7 @@ Starting a ticket (agent or human): `git switch -c feature/ORD-NN-slug` → `/cl
 
 ## ORD-1 · Epic: Engineering foundation and AI harness
 
-Status: In Progress · Owner: Mauricio · Spec: `docs/specs/ORD-1-engineering-foundation.md`
+Status: Done · Owner: Mauricio · Spec: `docs/specs/ORD-1-engineering-foundation.md`
 
 Repository, build, quality gates and the AI harness (guides + sensors) that every feature ticket relies on.
 
