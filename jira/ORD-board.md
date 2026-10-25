@@ -405,7 +405,7 @@ Customers can cancel an order until it ships. Built live in the talk; measured a
 
 ### ORD-21 · Task: Refinement: cancel orders
 
-- **Status:** Ready for Human
+- **Status:** In Progress
 - **Assignee:** Mauricio (with Claude) · **Labels:** refinement, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-14
 
