@@ -173,7 +173,7 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 
 ### ORD-8 · Task: Agents push feature branches and open PRs
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-5
 
@@ -190,6 +190,7 @@ Mauricio's decision (2026-10-24): agents push their feature branch and open the 
 - 2026-10-24 Claude: automated security review of bda160a: (High) wildcard allow `git push origin feature/*` also matched `--mirror`, `--delete`, refspecs like `x:refs/heads/main`; (Medium) `gh pr edit *` let the agent change the base or set its own first-pass labels. Follow-up patch: allow only `git push [-u] origin HEAD`; deny force, mirror, all, delete, prune, `+`/`:` refspecs, `main`/`master`, `gh pr edit` of base or labels; `gh pr edit` no longer allowed. Server-side ruleset on `main` stays the real control. Back to In Progress until the patch is applied.
 - 2026-10-24 Claude: tightening patch applied by Mauricio (96f9b2f). Checked denied: `git push --mirror`, `git push origin HEAD:refs/heads/main` (dry runs). Pushed with `git push origin HEAD` to update PR #8. In Review.
 - 2026-10-24 Claude: third automated finding on 96f9b2f: `git push origin HEAD` on `main` would target `main`, and the allow no longer pins `feature/*`. Accepted risk, no change: ruleset `protect-main` is active on `refs/heads/main` with no bypass actors (checked via API), so any direct push to `main` is rejected server-side; other branches carry no protection to escape. Option if wanted later: a PreToolUse hook that rejects `git push` unless `git rev-parse --abbrev-ref HEAD` matches `^(feature|chore)/`.
+- 2026-10-24 Claude: merged to `main` in PR #8 (67bf999). Done.
 
 ---
 
@@ -339,7 +340,7 @@ Run `/retro` on the epic's sessions. Mechanical mistakes become checks (ArchUnit
 
 ### ORD-16 · Task: Every request input has a limit
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Mauricio (architecture tests are team-owned) · **Labels:** human · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -353,10 +354,11 @@ From the ORD-15 retro: ORD-12/13/14 shipped request records with no size limits;
 **Comments**
 - 2026-10-24 Claude: rule written as new `architecture/RequestLimitsTest.java` (3 rules: strings and collections need `@Size`, numbers need `@Max`, on fields of `*Request` classes). Built and run in a scratch worktree, since agents can't edit `architecture/`: green on current code; with the three limits removed, all three rules fail naming `PlaceOrderRequest.customerId`, `PlaceOrderRequest.lines`, `OrderLineRequest.quantity`. Patch handed to Mauricio to review and apply. `CODING_STANDARDS.md` line added on `feature/ORD-16-request-input-limits`.
 - 2026-10-24 Claude: patch applied by Mauricio and committed; `./mvnw verify` green with `RequestLimitsTest` (3 rules). In Review.
+- 2026-10-24 Claude: merged to `main` in PR #8 (67bf999). Done.
 
 ### ORD-17 · Task: Verify the build when a subagent stops
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected) · **Labels:** human · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -374,10 +376,11 @@ From the ORD-15 retro: the Stop hook only fires for the main session and runs `.
 - 2026-10-24 Claude: automated security review of 6c554ad (Medium): the hook trusted `cwd` from its input, so it could run `./mvnw` from any directory. Follow-up patch: build only in the project or one of `git worktree list` entries (resolved with `pwd -P`), else exit 0. Tested: an outside repo with a planted `mvnw` is never run (SubagentStop and Stop); registered worktree with failing test → exit 2; project dir cases unchanged. Patch handed to Mauricio.
 - 2026-10-24 Claude: Mauricio chose option 1 (hook as detector + orchestrator check before merge); rule added to `docs/agents/issue-tracker.md`. Waiting for Mauricio to apply the directory-restriction patch, then In Review.
 - 2026-10-24 Claude: directory-restriction patch applied by Mauricio and committed; `./mvnw verify` green. In Review.
+- 2026-10-24 Claude: merged to `main` in PR #8 (67bf999). Done.
 
 ### ORD-18 · Task: Acceptance test first in technical tasks
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -390,6 +393,7 @@ From the ORD-15 retro: `PlaceOrderIT`, `ViewOrderIT` and `RefuseInvalidOrderIT` 
 
 **Comments**
 - 2026-10-24 Claude: rule added to the board conventions and `CONTRIBUTING.md` Definition of Ready; ORD-22 and ORD-23 drafts now start with their `*IT` (renumbered, close task last). Branch `feature/ORD-18-acceptance-test-first`.
+- 2026-10-24 Claude: merged to `main` in PR #8 (67bf999). Done.
 
 ---
 
