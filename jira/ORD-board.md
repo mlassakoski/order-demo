@@ -173,7 +173,7 @@ Found in ORD-6: `scripts/make-vanilla.sh` copies `scripts/` into the vanilla rep
 
 ### ORD-8 · Task: Agents push feature branches and open PRs
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio · **Labels:** ai-agent · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-5
 
@@ -188,6 +188,7 @@ Mauricio's decision (2026-10-24): agents push their feature branch and open the 
 **Comments**
 - 2026-10-24 Claude: settings patch applied by Mauricio (bda160a). Checked: `git push origin main` and `gh pr merge` denied by permissions; feature branch pushed and PR opened by the agent. In Review.
 - 2026-10-24 Claude: automated security review of bda160a: (High) wildcard allow `git push origin feature/*` also matched `--mirror`, `--delete`, refspecs like `x:refs/heads/main`; (Medium) `gh pr edit *` let the agent change the base or set its own first-pass labels. Follow-up patch: allow only `git push [-u] origin HEAD`; deny force, mirror, all, delete, prune, `+`/`:` refspecs, `main`/`master`, `gh pr edit` of base or labels; `gh pr edit` no longer allowed. Server-side ruleset on `main` stays the real control. Back to In Progress until the patch is applied.
+- 2026-10-24 Claude: tightening patch applied by Mauricio (96f9b2f). Checked denied: `git push --mirror`, `git push origin HEAD:refs/heads/main` (dry runs). Pushed with `git push origin HEAD` to update PR #8. In Review.
 
 ---
 
