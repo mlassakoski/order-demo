@@ -449,15 +449,18 @@ Cancelling a Pending or Paid order returns the updated order as Cancelled. Cuts 
 `/implement-spec ORD-20` (or `/implement ORD-22`).
 
 **Technical tasks**
-- [ ] **T1 Acceptance: `CancelOrderIT`.** Red until T2–T4 land. Done when: place → cancel → `GET` shows Cancelled.
-- [ ] **T2 Domain: `Order.cancel()`.** Allowed from Pending and Paid; sets Cancelled. Seam: aggregate (states set up with `Order.rehydrate`). Done when: Pending → Cancelled and Paid → Cancelled.
-- [ ] **T3 Application: cancel-order use case.** `CancelOrderUseCase` + `CancelOrderCommand`, `CancelOrderService`: load → `cancel()` → save; unknown id → `OrderNotFoundException`. Seam: use case with the in-memory fake port. Done when: the stored order is Cancelled after the call.
-- [ ] **T4 Web: `POST /orders/{id}/cancel`.** Returns 200 with `OrderResponse`; malformed id handled like `GET`. Seam: `@WebMvcTest`. Done when: 200 body with state Cancelled; 404 for unknown and malformed id (existing mapping).
+- [x] **T1 Acceptance: `CancelOrderIT`.** Red until T2–T4 land. Done when: place → cancel → `GET` shows Cancelled.
+- [x] **T2 Domain: `Order.cancel()`.** Allowed from Pending and Paid; sets Cancelled. Seam: aggregate (states set up with `Order.rehydrate`). Done when: Pending → Cancelled and Paid → Cancelled.
+- [x] **T3 Application: cancel-order use case.** `CancelOrderUseCase` + `CancelOrderCommand`, `CancelOrderService`: load → `cancel()` → save; unknown id → `OrderNotFoundException`. Seam: use case with the in-memory fake port. Done when: the stored order is Cancelled after the call.
+- [x] **T4 Web: `POST /orders/{id}/cancel`.** Returns 200 with `OrderResponse`; malformed id handled like `GET`. Seam: `@WebMvcTest`. Done when: 200 body with state Cancelled; 404 for unknown and malformed id (existing mapping).
 - [ ] **T5 Close.** `./mvnw verify` green, `/code-review main` clean, `security-reviewer` PASS, commit `feat(ORD-22): cancel an order`, push and open the PR, status `In Review`.
+
+**Comments**
+- 2026-10-24 Claude: T1–T4 built test-first on `feature/ORD-22-cancel-order` (4d6d42a); T1 `CancelOrderIT` was red (404) until T4. Merged into `feature/ORD-20-cancel-orders`; worktree hook state green; `./mvnw verify` green. Choices: `Order.status` no longer final; GET and cancel share the malformed-id check; `FakeOrderRepository` now stores copies like the real adapter, so a missing save fails the use case test. T5 runs at epic close.
 
 ### ORD-23 · Story: Refuse to cancel Shipped or Cancelled orders
 
-- **Status:** Ready for Agent
+- **Status:** In Progress
 - **Assignee:** Claude (agent) · **Reviewer:** Mauricio
 - **Labels:** ai-agent, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** ORD-22
