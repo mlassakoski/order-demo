@@ -494,13 +494,13 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
 
 ### ORD-24 · Task: Retro: cancel orders
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Mauricio (with Claude) · **Labels:** human, demo · **Points:** 1 · **Sprint:** 2
 - **Blocked by:** ORD-22, ORD-23
 
 **Acceptance criteria**
 - [x] `/retro` run in the implementation session; findings in Comments
-- [ ] First-pass acceptance recorded for ORD-22 and ORD-23 and compared with the vanilla run (ORD-32)
+- [x] First-pass acceptance recorded for ORD-22 and ORD-23 and compared with the vanilla run (ORD-32)
 
 **Comments**
 - 2026-10-24 Claude: retro on the ORD-21 → ORD-23 session. First pass: ORD-22 and ORD-23 needed one review-fix round (7150fb5: two missing IT paths, over-general base exception, wrong null-id wording) → `ai-small-fixes` on PR #12 (label is Mauricio's to apply; agents can't edit PR labels). Findings, most severe first:
@@ -511,6 +511,7 @@ Cancelling a Shipped or already Cancelled order is refused with `409` and the or
   5. **Closing tickets costs a PR each (process).** Moving tickets to Done after a merge needs a board-only PR (PR #9, this one). Proposal: fold Done transitions into the next work PR unless the board is needed sooner.
   6. **Hardening carried over (code).** `problemProperties()` copies keys without checking reserved ProblemDetail fields (from the PR #12 security review). Proposal: narrow to `Map<String, String>` and reject `type|title|status|detail|instance`.
   Left: Mauricio accepts findings (follow-ups as Draft Tasks); criterion 2 needs the vanilla run from ORD-32.
+- 2026-10-25 Claude: compared with the agent rehearsal of Run A (RUNBOOK scorecard): B `ai-small-fixes` and judge PASS; A fails the judge (1 test-name violation), no domain-rule hierarchy, no Shipped case end to end. The PR #12 label is still for Mauricio. In Review.
 
 ### ORD-25 · Task: Vanilla copy checks itself for harness hints
 
@@ -632,3 +633,6 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 **Acceptance criteria**
 - [ ] 3 rehearsals each of Run A (vanilla prompt) and Run B (ORD-22 and ORD-23 via `/implement`)
 - [ ] `scripts/score-run.sh` results, time and `/cost` recorded in `docs/demo/RUNBOOK.md` scorecard
+
+**Comments**
+- 2026-10-25 Claude: agent rehearsal done and scored (RUNBOOK scorecard): A 229 s / $1.21 / judge FAIL (1 violation); B judge PASS, one review-fix round. Found: `make-vanilla.sh` from today's `main` already contains cancel, so rehearsals must start from the `c199963` baseline (steps added to the RUNBOOK). Left for Mauricio: 3 human rehearsals of each run with `/cost`, and slides 18 and 19.

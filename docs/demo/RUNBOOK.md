@@ -28,6 +28,9 @@ Same task, two setups, one judge.
 3. `scripts/make-vanilla.sh` → `../order-demo-vanilla` from the baseline, no harness, plugin disabled.
    Check there with `/` that no Matt skills are listed.
 4. Rehearse both runs 3 times. Record the best ones as backup. Fill the scorecard.
+   Both runs start from the **baseline** `c199963` (ORD-12 to ORD-14, no cancel code): `main` already contains the cancel feature since PR #12.
+   - Run A: work in a copy of `../order-demo-vanilla` (`cp -R ../order-demo-vanilla /tmp/run-a`), never in `make-vanilla.sh` output from today's `main`.
+   - Run B: `git switch -c rehearsal/run-b c199963`, then restore today's harness on it (`git checkout main -- .claude CODING_STANDARDS.md CONTRIBUTING.md docs/agents jira scripts src/test/java/com/demo/order/architecture`).
 
 ## Concept tour (5 min, proves every AI concept works)
 
@@ -68,17 +71,21 @@ Short on time: `cp docs/demo/reference/ORD-20-cancel-orders.md docs/specs/`, set
 
 ## Scorecard
 
+Agent rehearsal, 2026-10-25 (A: headless `claude -p` with the demo prompt in a copy of `../order-demo-vanilla`; B: the ORD-21 → ORD-23 build in this repo, PRs #11 and #12). Judge: `scripts/score-run.sh`.
+
 | Check | A. Vanilla | B. Harnessed |
 |---|---|---|
-| `./mvnw verify` with judge rules | | |
-| ArchUnit / convention violations | | |
-| Rule inside aggregate (`order.cancel()`) | | |
-| Specific domain exception, 409 / 404 | | |
-| Test names `should_..._when_...` | | |
-| `/code-review` Spec findings | | |
-| Manual fixes needed | | |
-| Time / tokens (`/cost`) | | |
-| **Accepted on first pass?** | | |
+| `./mvnw verify` with judge rules | ❌ FAIL | ✅ PASS |
+| ArchUnit / convention violations | 1 (`should_cancel_a_pending_order_and_refuse_cancelling_it_again` breaks `should_..._when_...`) | 0 |
+| Rule inside aggregate (`order.cancel()`) | ✅ | ✅ |
+| Specific domain exception, 409 / 404 | ⚠️ `OrderNotCancellableException extends RuntimeException`, mapped by its own handler; no domain-rule hierarchy | ✅ `OrderCannotBeCancelledException` under `DomainRuleViolationException`, generic 409 with `currentState` |
+| Test names `should_..._when_...` | ❌ 1 violation | ✅ |
+| `/code-review` Spec findings | not run (no spec) | 2 IT gaps + 1 design point, fixed in one agent round |
+| Manual fixes needed | 1 (rename the test) to pass the judge | 0 |
+| Time / tokens (`/cost`) | 229 s, 49 turns, $1.21 | ~14 min of agent time (2 implementers + 1 fixer + 4 reviewers), plus refinement |
+| **Accepted on first pass?** | No: fails the judge | `ai-small-fixes`: one review-fix round, green throughout |
+
+Notes: A was strong because the ORD-10 code gave it good patterns to copy; the harness made the difference on conventions, the error model and the acceptance tests (Shipped case end to end, written first). Human rehearsals: add columns or replace these numbers.
 
 ## Talking points
 - Each harness file: **guide** or **sensor**.
