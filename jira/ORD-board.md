@@ -545,7 +545,7 @@ From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the ha
 
 ### ORD-27 · Task: Check git push arguments with a hook
 
-- **Status:** In Progress
+- **Status:** In Review
 - **Assignee:** Mauricio (`.claude/settings.json` and hooks are protected; Claude drafts the patch) · **Labels:** human · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -553,12 +553,13 @@ From the ORD-24 retro (finding 2): ORD-22/23 tickets asked for an IT "for the ha
 From the ORD-24 retro (finding 3): wildcard permission rules for `git push` leaked three times (ORD-8). A PreToolUse hook that parses the command is a stronger fence than more patterns.
 
 **Acceptance criteria**
-- [ ] PreToolUse Bash hook: any command containing `git push` passes only if it is exactly `git push [-u] origin HEAD` and the current branch is `feature/*` or `chore/*`; everything else is blocked (fail closed)
-- [ ] Existing deny rules kept as a second layer
-- [ ] Checked: allowed form passes; `--mirror`, refspecs, compound commands, pushing from `main` are blocked
+- [x] PreToolUse Bash hook: any command containing `git push` passes only if it is exactly `git push [-u] origin HEAD` and the current branch is `feature/*` or `chore/*`; everything else is blocked (fail closed)
+- [x] Existing deny rules kept as a second layer
+- [x] Checked: allowed form passes; `--mirror`, refspecs, compound commands, pushing from `main` are blocked
 
 **Comments**
 - 2026-10-24 Claude: patch drafted (new `.claude/hooks/guard-git-push.sh` + PreToolUse `Bash` entry; deny rules kept). Simulated inputs: allowed form on `feature/*` and `chore/*` → pass; `--mirror`, `-f`, `HEAD:refs/heads/main`, `git -C . push`, compound commands, allowed form on `main` → blocked; `git log | grep push` and a commit message saying "push" → pass. Fails closed without `jq`. Waiting for Mauricio to apply.
+- 2026-10-25 Claude: patch applied by Mauricio, committed 2ddcaa1. Live: `git -C . push --dry-run origin HEAD` blocked by the hook; the allowed form from `chore/ORD-24-retro-cancel-orders` went through and updated PR #13. Known false positive, kept on purpose (fail closed): any command whose text contains a push, such as a commit message passed with `-m`, is blocked; write such messages with `git commit -F <file>`. Stripping quoted text would let `bash -c "..."` through. In Review.
 
 ### ORD-28 · Task: Orchestration notes: worktree base and Done transitions
 
