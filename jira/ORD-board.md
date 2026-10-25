@@ -300,7 +300,7 @@ Note: if ORD-13 and ORD-14 run in parallel, both touch `GlobalExceptionHandler`;
 
 ### ORD-15 · Task: Retro: place and view orders
 
-- **Status:** In Progress
+- **Status:** Done
 - **Assignee:** Mauricio (with Claude) · **Labels:** human · **Points:** 1 · **Sprint:** 1
 - **Blocked by:** ORD-12, ORD-13, ORD-14
 
@@ -308,13 +308,14 @@ Note: if ORD-13 and ORD-14 run in parallel, both touch `GlobalExceptionHandler`;
 Run `/retro` on the epic's sessions. Mechanical mistakes become checks (ArchUnit rule, hook, CI); judgement calls become `CODING_STANDARDS.md` entries; each change is its own Task in this epic.
 
 **Acceptance criteria**
-- [ ] First-pass acceptance recorded for ORD-12, ORD-13, ORD-14 (labels on the PRs)
+- [x] First-pass acceptance recorded for ORD-12, ORD-13, ORD-14 (labels on the PRs)
 - [x] Retro findings listed in Comments, most severe first
 - [x] Follow-up Tasks created for accepted findings
 
 **Comments**
 - 2026-10-24 Claude: `/retro` run on the ORD-3 → ORD-10 session; 9 findings proposed (unbounded request input → ArchUnit rule; `requireNonNull` in domain → ArchUnit rule; Stop hook skips subagents → `SubagentStop` hook; ITs never red → acceptance IT first; rtk breaks git in worktrees; jdtls diagnostics noise; `/code-review main` pointer (fixed by `main`); one board writer in parallel runs; `tests.md` vs "nothing stored"). Waiting for Mauricio to accept findings; then follow-up Tasks. First-pass labels on PR #7: ORD-12/13/14 all `ai-small-fixes` (one review-fix round).
 - 2026-10-24 Claude: Mauricio accepted findings 1, 3, 4 → Draft ORD-16, ORD-17, ORD-18; rejected 5, 6, 8, 9; 7 fixed by renaming to `main`. Left: first-pass labels on PR #7 (all three stories `ai-small-fixes`): needs Mauricio, the agent has no GitHub write access.
+- 2026-10-24 Claude: label `ai-small-fixes` created and applied to PR #7 (carries ORD-12, ORD-13, ORD-14). All criteria met; Done.
 
 ### ORD-16 · Task: Every request input has a limit
 
