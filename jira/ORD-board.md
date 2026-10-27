@@ -664,3 +664,4 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 **Comments**
 - 2026-10-27 Claude: Mauricio approved the full scope (all DORA proxies plus first-pass counts). Tested with fixtures for fix/revert blame, red-to-green recovery, cancelled runs and `--since`, and on a snapshot of the repo's 17 merged PRs and 20 `ci` runs on `main`. Review rounds and PR size left out (not requested). In Review.
+- 2026-10-27 Claude: Mauricio's local run failed: `gh pr list --json commits` asks for every commit's authors and exceeds GitHub's 500,000-node GraphQL limit. Now one `gh api graphql` query with only the needed fields and the first commit per PR, paginated by 100. Tested with a stubbed `gh`.

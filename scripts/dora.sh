@@ -33,10 +33,25 @@ else
   command -v gh > /dev/null || { echo "gh is required (or use --from DIR)" >&2; exit 2; }
   tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
   prs="$tmp/prs.json" runs="$tmp/runs.json"
-  repo_arg=(); [ -n "$repo" ] && repo_arg=(-R "$repo")
-  gh pr list ${repo_arg[@]+"${repo_arg[@]}"} --base main --state merged --limit 1000 \
-    --json number,title,headRefName,mergedAt,labels,commits > "$prs"
-  gh run list ${repo_arg[@]+"${repo_arg[@]}"} --workflow ci.yml --branch main --event push --limit 1000 \
+  [ -n "$repo" ] || repo="$(gh repo view --json owner,name --jq '.owner.login + "/" + .name')"
+  # Own query: `gh pr list --json commits` asks for every commit's authors and
+  # exceeds GraphQL's node limit. The first commit is all lead time needs.
+  gh api graphql --paginate -f owner="${repo%%/*}" -f name="${repo#*/}" -f query='
+    query($owner: String!, $name: String!, $endCursor: String) {
+      repository(owner: $owner, name: $name) {
+        pullRequests(first: 100, after: $endCursor, states: MERGED, baseRefName: "main") {
+          pageInfo { hasNextPage endCursor }
+          nodes {
+            number title headRefName mergedAt
+            labels(first: 20) { nodes { name } }
+            commits(first: 1) { nodes { commit { authoredDate } } }
+          }
+        }
+      }
+    }' --jq '.data.repository.pullRequests.nodes[]' \
+    | jq -s 'map({number, title, headRefName, mergedAt, labels: .labels.nodes,
+        commits: (.commits.nodes | map(.commit))})' > "$prs"
+  gh run list -R "$repo" --workflow ci.yml --branch main --event push --limit 1000 \
     --json databaseId,conclusion,status,createdAt,updatedAt,displayTitle > "$runs"
   if [ -n "$save" ]; then mkdir -p "$save"; cp "$prs" "$runs" "$save/"; fi
 fi
