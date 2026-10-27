@@ -607,7 +607,7 @@ From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandl
 
 ## ORD-30 · Epic: Demo enablement
 
-Status: In Progress · Owner: Mauricio
+Status: Done · Owner: Mauricio
 
 Tooling that measures the harness run against a vanilla run. Not product work, tracked here so it is visible and estimated.
 
@@ -642,7 +642,7 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 
 ### ORD-35 · Task: DORA metrics from the repo's own GitHub data
 
-- **Status:** In Review
+- **Status:** Done
 - **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 2 · **Sprint:** 2
 - **Blocked by:** none
 
@@ -666,3 +666,4 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 - 2026-10-27 Claude: Mauricio approved the full scope (all DORA proxies plus first-pass counts). Tested with fixtures for fix/revert blame, red-to-green recovery, cancelled runs and `--since`, and on a snapshot of the repo's 17 merged PRs and 20 `ci` runs on `main`. Review rounds and PR size left out (not requested). In Review.
 - 2026-10-27 Claude: Mauricio's local run failed: `gh pr list --json commits` asks for every commit's authors and exceeds GitHub's 500,000-node GraphQL limit. Now one `gh api graphql` query with only the needed fields and the first commit per PR, paginated by 100. Tested with a stubbed `gh`.
 - 2026-10-27 Claude: works on Mauricio's Mac. Two follow-ups he approved: first-pass now counts only feat/fix/refactor/perf PRs not authored by a bot (skipped counts and unrated PR numbers printed); merge days are grouped by local date and listed (the old "1 active day" was correct in UTC, all 17 merges were on 2026-10-25 UTC, but read like a bug).
+- 2026-10-27 Claude: merged to `main` in PR #18. Done.
