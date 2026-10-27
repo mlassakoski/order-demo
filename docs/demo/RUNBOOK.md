@@ -102,11 +102,11 @@ Snapshot 2026-10-27 (17 merged PRs, 20 `ci` runs on `main`):
 | Metric | Value |
 |---|---|
 | Lead time for changes | median 11 min, p90 53 min (first branch commit to merge; 6 are Dependabot PRs) |
-| Deployment frequency | 17 merges, all on 2026-10-25 |
+| Deployment frequency | 17 merges, on 2026-10-24 and 2026-10-25 (local time, UTC-3) |
 | Change failure rate | 0% (0/17) |
 | Failed deployment recovery time | n/a, no red `ci` run on `main` (3 cancelled, ignored) |
 | Rework rate | 0% (0/17) |
-| First-pass acceptance | 1 rated PR (#7 `ai-small-fixes`); PR #12 still unlabelled |
+| First-pass acceptance | 2 feat/fix PRs count (6 Dependabot and 9 chore/docs PRs skipped): #7 `ai-small-fixes`, #12 unlabelled |
 
 Read it as: DORA is the long-term team measure and needs months of history; first-pass acceptance is the leading signal visible in one demo. Fix commits made inside a PR before merge (review rounds) do not count as failures; they show up in first-pass acceptance instead.
 

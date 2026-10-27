@@ -43,13 +43,14 @@ else
           pageInfo { hasNextPage endCursor }
           nodes {
             number title headRefName mergedAt
+            author { login __typename }
             labels(first: 20) { nodes { name } }
             commits(first: 1) { nodes { commit { authoredDate } } }
           }
         }
       }
     }' --jq '.data.repository.pullRequests.nodes[]' \
-    | jq -s 'map({number, title, headRefName, mergedAt, labels: .labels.nodes,
+    | jq -s 'map({number, title, headRefName, mergedAt, author, labels: .labels.nodes,
         commits: (.commits.nodes | map(.commit))})' > "$prs"
   gh run list -R "$repo" --workflow ci.yml --branch main --event push --limit 1000 \
     --json databaseId,conclusion,status,createdAt,updatedAt,displayTitle > "$runs"
@@ -102,7 +103,12 @@ jq -rn --slurpfile prs "$prs" --slurpfile runs "$runs" --arg since "$since" '
   | ($runs[0] | map(select(.status == "completed" and (.createdAt | ts) >= $start
         and .conclusion == "failure")) | length) as $red
 
-  | ($merged | map([.labels[].name]) ) as $lbl
+  # First-pass rates AI-written code: skip bot PRs and anything but feat/fix/refactor/perf.
+  | ($merged | map(select(.author.__typename == "Bot" or (.author.login // "" | test("\\[bot\\]$|^dependabot"))))) as $bots
+  | ($merged | map(select((.number as $x | $bots | any(.number == $x)) | not))
+     | map(select(.title | test("^(feat|fix|refactor|perf)(\\(.*\\))?!?:"; "i") | not))) as $chores
+  | ($merged - $bots - $chores) as $code
+  | ($code | map([.labels[].name])) as $lbl
   | def count(l): $lbl | map(select(index(l))) | length;
   (count("ai-first-pass")) as $fp | (count("ai-small-fixes")) as $sf | (count("ai-reworked")) as $rw
   | ($fp + $sf + $rw) as $rated
@@ -111,12 +117,12 @@ jq -rn --slurpfile prs "$prs" --slurpfile runs "$runs" --arg since "$since" '
     "Window: \(if $start > 0 then $since else "all history" end) to today, \($days * 10 | floor / 10) days, \($n) merged PRs",
     "",
     "Lead time for changes   median \($lead | pct(0.5) | dur), p90 \($lead | pct(0.9) | dur)   (first branch commit to merge)",
-    "Deployment frequency    \($n / $days * 10 | floor / 10) merges/day, \($merged | map(.mergedAt[:10]) | unique | length) active day(s)",
+    "Deployment frequency    \($n / $days * 10 | floor / 10) merges/day; merged on \($merged | map(.mergedAt | ts | strflocaltime("%Y-%m-%d")) | unique | join(", ")) (local time)",
     "Change failure rate     \(if $n == 0 then "n/a" else "\($failed | length * 100 / $n | floor)%" end) (\($failed | length)/\($n))\(if ($failed | length) > 0 then "   PRs \($failed | map("#\(.)") | join(", "))" else "" end)   (later fix/revert PR on the same ticket)",
     "Recovery time           \(if ($rec.out | length) == 0 then (if $rec.red != null then "main still red" else "n/a, no red ci run on main" end) else "median \($rec.out | pct(0.5) | dur) over \($rec.out | length) incident(s)" end)   (\($red) red runs; red ci on main to next green)",
     "Rework rate             \(if $n == 0 then "n/a" else "\($fixes * 100 / $n | floor)%" end) (\($fixes)/\($n))   (fix/revert PRs among merges)",
     "",
-    "First-pass acceptance (PR labels)",
-    "ai-first-pass \($fp) · ai-small-fixes \($sf) · ai-reworked \($rw) · unrated \($n - $rated)",
+    "First-pass acceptance (PR labels on \($code | length) feat/fix PRs; skipped \($bots | length) bot and \($chores | length) chore/docs PRs)",
+    "ai-first-pass \($fp) · ai-small-fixes \($sf) · ai-reworked \($rw) · unrated \($code | length - $rated)\(if ($code | length) > $rated then "   (unrated: \($code | map(select([.labels[].name] | any(test("^ai-")) | not) | "#\(.number)") | join(", ")))" else "" end)",
     "First-pass rate         \(if $rated == 0 then "n/a" else "\($fp * 100 / $rated | floor)% of \($rated) rated PRs" end)"
 '
