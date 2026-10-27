@@ -54,4 +54,4 @@ Architecture rules, coverage threshold, hooks and agent permissions change only 
 
 ## Metrics we track
 - **First-pass acceptance** per PR (template labels).
-- **DORA**: lead time for changes, deployment frequency, change failure rate, failed deployment recovery time, rework rate.
+- **DORA**: lead time for changes, deployment frequency, change failure rate, failed deployment recovery time, rework rate. `scripts/dora.sh` approximates them from GitHub data (merge to `main` = deployment) and prints first-pass acceptance next to them.

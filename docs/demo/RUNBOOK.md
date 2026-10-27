@@ -87,6 +87,29 @@ Agent rehearsal, 2026-10-25 (A: headless `claude -p` with the demo prompt in a c
 
 Notes: A was strong because the ORD-10 code gave it good patterns to copy; the harness made the difference on conventions, the error model and the acceptance tests (Shipped case end to end, written first). Human rehearsals were skipped (decision 2026-10-25, ORD-32): these agent-rehearsal numbers are the scorecard for the talk.
 
+## DORA next to first-pass (ORD-35)
+
+```
+scripts/dora.sh                      # all history
+scripts/dora.sh --since 2026-10-25   # a window
+scripts/dora.sh --save docs/demo/dora-snapshot   # before the talk; show it offline with --from
+```
+
+The service never deploys, so these are GitHub proxies: a merge to `main` is a deployment, a later `fix(...)`/revert PR on the same ticket is a change failure, and a red `ci` run on `main` until the next green one is an incident.
+
+Snapshot 2026-10-27 (17 merged PRs, 20 `ci` runs on `main`):
+
+| Metric | Value |
+|---|---|
+| Lead time for changes | median 11 min, p90 53 min (first branch commit to merge; 6 are Dependabot PRs) |
+| Deployment frequency | 17 merges, all on 2026-10-25 |
+| Change failure rate | 0% (0/17) |
+| Failed deployment recovery time | n/a, no red `ci` run on `main` (3 cancelled, ignored) |
+| Rework rate | 0% (0/17) |
+| First-pass acceptance | 1 rated PR (#7 `ai-small-fixes`); PR #12 still unlabelled |
+
+Read it as: DORA is the long-term team measure and needs months of history; first-pass acceptance is the leading signal visible in one demo. Fix commits made inside a PR before merge (review rounds) do not count as failures; they show up in first-pass acceptance instead.
+
 ## Talking points
 - Each harness file: **guide** or **sensor**.
 - Grilling: decisions are the human's, facts are the agent's (Matt's `grilling` rule).
