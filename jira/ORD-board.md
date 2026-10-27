@@ -28,7 +28,7 @@ Starting a ticket (agent or human): `git switch -c feature/ORD-NN-slug` → `/cl
 | Sprint | Goal | Tickets |
 |---|---|---|
 | Sprint 1 (prep week) | Working harness and the place/view feature, built only by the agent | ORD-2 to ORD-6, ORD-11 to ORD-15 |
-| Sprint 2 (demo) | Cancel orders built live, measured against a vanilla run | ORD-21 to ORD-24, ORD-31, ORD-32 |
+| Sprint 2 (demo) | Cancel orders built live, measured against a vanilla run | ORD-21 to ORD-24, ORD-31, ORD-32, ORD-35 |
 
 ---
 
@@ -607,7 +607,7 @@ From the ORD-24 retro (finding 6, PR #12 security review): `GlobalExceptionHandl
 
 ## ORD-30 · Epic: Demo enablement
 
-Status: Done · Owner: Mauricio
+Status: In Progress · Owner: Mauricio
 
 Tooling that measures the harness run against a vanilla run. Not product work, tracked here so it is visible and estimated.
 
@@ -638,3 +638,31 @@ Tooling that measures the harness run against a vanilla run. Not product work, t
 **Comments**
 - 2026-10-25 Claude: agent rehearsal done and scored (RUNBOOK scorecard): A 229 s / $1.21 / judge FAIL (1 violation); B judge PASS, one review-fix round. Found: `make-vanilla.sh` from today's `main` already contains cancel, so rehearsals must start from the `c199963` baseline (steps added to the RUNBOOK). Left for Mauricio: 3 human rehearsals of each run with `/cost`, and slides 18 and 19.
 - 2026-10-25 Claude: Mauricio decided to skip the human rehearsals (each one re-implements ORD-22 and ORD-23). The agent rehearsal in the RUNBOOK scorecard is the result. The local `rehearsal/run-b` branch was removed at Mauricio's request; for the live Run B, rebuild it with the RUNBOOK baseline steps. Done.
+
+
+### ORD-35 · Task: DORA metrics from the repo's own GitHub data
+
+- **Status:** In Review
+- **Assignee:** Claude (agent) · **Labels:** ai-agent, demo · **Points:** 2 · **Sprint:** 2
+- **Blocked by:** none
+
+**Description**
+`CONTRIBUTING.md` names the DORA metrics but nothing computes them; only first-pass acceptance is measured. The service never deploys, so the script uses GitHub proxies and says so in its output. Key ORD-33 is skipped: it was used and removed in PR #10.
+
+**Acceptance criteria**
+- [x] `scripts/dora.sh [--since YYYY-MM-DD] [-R owner/repo]` prints, from `gh` + `jq`:
+  - lead time for changes: first branch commit to PR merge (median, p90)
+  - deployment frequency: merges to `main` per day (merge = deploy)
+  - change failure rate: merges blamed by a later `fix(...)`/revert PR on the same ticket key (or the `#N` a revert names)
+  - failed deployment recovery time: first red `ci` run on `main` to the next green one (cancelled runs ignored)
+  - rework rate: fix/revert PRs among merges
+  - first-pass acceptance: `ai-first-pass` / `ai-small-fixes` / `ai-reworked` label counts and rate
+- [x] `--save DIR` / `--from DIR` snapshot the data so the numbers can be shown offline
+- [x] Commit dates with a UTC offset (GitHub keeps the author's) are parsed correctly
+- [x] Runs on macOS bash 3.2; no Java, architecture test or gate changes
+- [x] RUNBOOK scorecard has a DORA section with the command and a snapshot
+
+**Comments**
+- 2026-10-27 Claude: Mauricio approved the full scope (all DORA proxies plus first-pass counts). Tested with fixtures for fix/revert blame, red-to-green recovery, cancelled runs and `--since`, and on a snapshot of the repo's 17 merged PRs and 20 `ci` runs on `main`. Review rounds and PR size left out (not requested). In Review.
+- 2026-10-27 Claude: Mauricio's local run failed: `gh pr list --json commits` asks for every commit's authors and exceeds GitHub's 500,000-node GraphQL limit. Now one `gh api graphql` query with only the needed fields and the first commit per PR, paginated by 100. Tested with a stubbed `gh`.
+- 2026-10-27 Claude: works on Mauricio's Mac. Two follow-ups he approved: first-pass now counts only feat/fix/refactor/perf PRs not authored by a bot (skipped counts and unrated PR numbers printed); merge days are grouped by local date and listed (the old "1 active day" was correct in UTC, all 17 merges were on 2026-10-25 UTC, but read like a bug).
