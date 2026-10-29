@@ -1,0 +1,5 @@
+# Production profile: JSON logs (Elastic Common Schema) for log aggregation.
+logging:
+  structured:
+    format:
+      console: ecs

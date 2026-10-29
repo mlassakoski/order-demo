@@ -1,0 +1,16 @@
+target/
+*.iml
+.idea/
+.vscode/
+.DS_Store
+
+
+
+# jdtls (Java LSP) workspace files
+.classpath
+.project
+.settings/
+
+# Local JVM flags (JDK-specific)
+.mvn/jvm.config
+
