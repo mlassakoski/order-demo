@@ -87,6 +87,26 @@ Agent rehearsal, 2026-10-25 (A: headless `claude -p` with the demo prompt in a c
 
 Notes: A was strong because the ORD-10 code gave it good patterns to copy; the harness made the difference on conventions, the error model and the acceptance tests (Shipped case end to end, written first). Human rehearsals were skipped (decision 2026-10-25, ORD-32): these agent-rehearsal numbers are the scorecard for the talk.
 
+### Rerun, 2026-10-28 (both headless, same rules)
+
+Both runs as `claude -p` on JDK 21, same tool limits (edits, `./mvnw`, `git`), from baseline `c199963`. A: the demo prompt in a copy of `../order-demo-vanilla`. B: `/implement-spec ORD-20` on `rehearsal/run-b` with today's harness, ORD-22 and ORD-23 set to `Ready for Agent`. Judge: `scripts/score-run.sh`.
+
+| Check | A. Vanilla | B. Harnessed |
+|---|---|---|
+| `./mvnw verify` with judge rules | ❌ FAIL | ✅ PASS |
+| Tests (unit + IT) | 109, 1 failing (the judge's convention test) | 107 + 8 IT, all green |
+| ArchUnit / convention violations | 2 (`CancelOrderIT`: `should_cancel_a_placed_order_and_show_it_as_cancelled`, `should_refuse_to_cancel_a_shipped_order_and_keep_it_shipped`) | 0 |
+| Rule inside aggregate (`order.cancel()`) | ✅ | ✅ |
+| Specific domain exception, 409 / 404 | ✅ `OrderNotCancellableException` under its own `DomainConflictException`, 409; 404 like `GET` | ✅ `OrderCannotBeCancelledException` under `DomainRuleViolationException`, 409 with `currentState`; 404 like `GET` |
+| Test names `should_..._when_...` | ❌ 2 violations | ✅ |
+| Review | none | `/code-review`: 2 acceptance criteria only tested in the domain, fixed with HTTP tests; `security-reviewer` PASS |
+| Commits / board | uncommitted working tree | one commit per ticket, ORD-22 and ORD-23 moved to `In Review` |
+| Manual fixes needed | 2 renames to pass the judge | 0 |
+| Time / cost | 176 s, 47 turns, $1.27 | 704 s, $5.64 (2 implementers + reviewers) |
+| **Accepted on first pass?** | No: fails the judge | Yes: green, review findings fixed inside the run |
+
+Notes: A improved on the error model this time (its own conflict base class), so the gap is now conventions, review and traceability rather than design. B's first attempt stalled after ORD-22 ($2.77): the RTK hook rewrites `git` to `rtk git`, which the headless subagents could not run; allowing `rtk git` fixed it. The A result is kept in `docs/demo/vanilla-run/` to open next to `src/` (not built: Maven, ArchUnit and the hooks only look at the root `src/` and `pom.xml`, and `make-vanilla.sh` leaves `docs/` out).
+
 ## DORA next to first-pass (ORD-35)
 
 ```
